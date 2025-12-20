@@ -96,11 +96,15 @@ namespace CompanyTaskProjectManagement.Forms
             // lblHosgeldin
             this.lblHosgeldin.AutoSize = true;
             this.lblHosgeldin.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            this.lblHosgeldin.ForeColor = Color.FromArgb(0, 120, 215);
             this.lblHosgeldin.Location = new Point(20, 40);
             this.lblHosgeldin.Name = "lblHosgeldin";
             this.lblHosgeldin.Text = $"Hoşgeldiniz, {_currentUser.AdSoyad}";
 
             // grpIstatistikler
+            this.grpIstatistikler.BackColor = Color.White;
+            this.grpIstatistikler.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.grpIstatistikler.ForeColor = Color.FromArgb(0, 120, 215);
             this.grpIstatistikler.Location = new Point(20, 80);
             this.grpIstatistikler.Name = "grpIstatistikler";
             this.grpIstatistikler.Size = new Size(760, 200);
@@ -113,6 +117,7 @@ namespace CompanyTaskProjectManagement.Forms
             // lblToplamProje
             this.lblToplamProje.AutoSize = true;
             this.lblToplamProje.Font = new Font("Segoe UI", 12F);
+            this.lblToplamProje.ForeColor = Color.FromArgb(16, 124, 16);
             this.lblToplamProje.Location = new Point(20, 30);
             this.lblToplamProje.Name = "lblToplamProje";
             this.lblToplamProje.Text = "Toplam Proje: 0";
@@ -120,6 +125,7 @@ namespace CompanyTaskProjectManagement.Forms
             // lblToplamGorev
             this.lblToplamGorev.AutoSize = true;
             this.lblToplamGorev.Font = new Font("Segoe UI", 12F);
+            this.lblToplamGorev.ForeColor = Color.FromArgb(0, 120, 215);
             this.lblToplamGorev.Location = new Point(20, 60);
             this.lblToplamGorev.Name = "lblToplamGorev";
             this.lblToplamGorev.Text = "Toplam Görev: 0";
@@ -127,6 +133,7 @@ namespace CompanyTaskProjectManagement.Forms
             // lblBekleyenGorev
             this.lblBekleyenGorev.AutoSize = true;
             this.lblBekleyenGorev.Font = new Font("Segoe UI", 12F);
+            this.lblBekleyenGorev.ForeColor = Color.FromArgb(255, 140, 0);
             this.lblBekleyenGorev.Location = new Point(20, 90);
             this.lblBekleyenGorev.Name = "lblBekleyenGorev";
             this.lblBekleyenGorev.Text = "Bekleyen Görev: 0";
@@ -134,6 +141,7 @@ namespace CompanyTaskProjectManagement.Forms
             // lblTamamlananGorev
             this.lblTamamlananGorev.AutoSize = true;
             this.lblTamamlananGorev.Font = new Font("Segoe UI", 12F);
+            this.lblTamamlananGorev.ForeColor = Color.FromArgb(16, 124, 16);
             this.lblTamamlananGorev.Location = new Point(20, 120);
             this.lblTamamlananGorev.Name = "lblTamamlananGorev";
             this.lblTamamlananGorev.Text = "Tamamlanan Görev: 0";
@@ -141,6 +149,7 @@ namespace CompanyTaskProjectManagement.Forms
             // MainForm
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
+            this.BackColor = Color.FromArgb(245, 247, 250);
             this.ClientSize = new Size(800, 500);
             this.Controls.Add(this.lblHosgeldin);
             this.Controls.Add(this.grpIstatistikler);

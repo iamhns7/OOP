@@ -39,6 +39,7 @@ namespace CompanyTaskProjectManagement.Forms
             // lblBaslik
             this.lblBaslik.AutoSize = true;
             this.lblBaslik.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblBaslik.ForeColor = System.Drawing.Color.FromArgb(0, 120, 215);
             this.lblBaslik.Location = new System.Drawing.Point(80, 30);
             this.lblBaslik.Name = "lblBaslik";
             this.lblBaslik.Size = new System.Drawing.Size(240, 30);
@@ -85,6 +86,7 @@ namespace CompanyTaskProjectManagement.Forms
             // LoginForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.FromArgb(240, 244, 248);
             this.ClientSize = new System.Drawing.Size(400, 300);
             this.Controls.Add(this.lblBaslik);
             this.Controls.Add(this.lblKullaniciAdi);

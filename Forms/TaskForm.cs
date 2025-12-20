@@ -107,18 +107,27 @@ namespace CompanyTaskProjectManagement.Forms
             this.cmbFiltre.SelectedIndexChanged += CmbFiltre_SelectedIndexChanged;
 
             // btnYeni
+            this.btnYeni.BackColor = Color.FromArgb(16, 124, 16);
+            this.btnYeni.ForeColor = Color.White;
+            this.btnYeni.FlatStyle = FlatStyle.Flat;
             this.btnYeni.Location = new Point(12, 370);
             this.btnYeni.Size = new Size(100, 30);
             this.btnYeni.Text = "Yeni";
             this.btnYeni.Click += BtnYeni_Click;
 
             // btnDuzenle
+            this.btnDuzenle.BackColor = Color.FromArgb(0, 120, 215);
+            this.btnDuzenle.ForeColor = Color.White;
+            this.btnDuzenle.FlatStyle = FlatStyle.Flat;
             this.btnDuzenle.Location = new Point(120, 370);
             this.btnDuzenle.Size = new Size(100, 30);
             this.btnDuzenle.Text = "Düzenle";
             this.btnDuzenle.Click += BtnDuzenle_Click;
 
             // btnSil
+            this.btnSil.BackColor = Color.FromArgb(196, 43, 28);
+            this.btnSil.ForeColor = Color.White;
+            this.btnSil.FlatStyle = FlatStyle.Flat;
             this.btnSil.Location = new Point(228, 370);
             this.btnSil.Size = new Size(100, 30);
             this.btnSil.Text = "Sil";
@@ -131,6 +140,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnKapat.Click += (s, e) => this.Close();
 
             // grpDetay
+            this.grpDetay.BackColor = Color.White;
             this.grpDetay.Location = new Point(630, 12);
             this.grpDetay.Size = new Size(350, 390);
             this.grpDetay.Text = "Görev Detayları";
@@ -215,6 +225,7 @@ namespace CompanyTaskProjectManagement.Forms
             // TaskForm
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
+            this.BackColor = Color.FromArgb(245, 247, 250);
             this.ClientSize = new Size(1000, 420);
             this.Controls.Add(this.lblFiltre);
             this.Controls.Add(this.cmbFiltre);
