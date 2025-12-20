@@ -17,6 +17,7 @@ namespace CompanyTaskProjectManagement.Forms
         private Label lblKullaniciAdi;
         private Label lblSifre;
         private Label lblBaslik;
+        private LinkLabel lnkKayitOl;
 
         public User AuthenticatedUser { get; private set; }
 
@@ -34,6 +35,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.lblSifre = new Label();
             this.txtSifre = new TextBox();
             this.btnGiris = new Button();
+            this.lnkKayitOl = new LinkLabel();
             this.SuspendLayout();
 
             // lblBaslik
@@ -83,17 +85,29 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnGiris.UseVisualStyleBackColor = false;
             this.btnGiris.Click += new EventHandler(this.BtnGiris_Click);
 
+            // lnkKayitOl
+            this.lnkKayitOl.AutoSize = true;
+            this.lnkKayitOl.Location = new System.Drawing.Point(110, 270);
+            this.lnkKayitOl.Name = "lnkKayitOl";
+            this.lnkKayitOl.Size = new System.Drawing.Size(180, 15);
+            this.lnkKayitOl.TabIndex = 3;
+            this.lnkKayitOl.TabStop = true;
+            this.lnkKayitOl.Text = "Hesabınız yok mu? Kayıt Olun";
+            this.lnkKayitOl.LinkColor = System.Drawing.Color.FromArgb(0, 120, 215);
+            this.lnkKayitOl.LinkClicked += new LinkLabelLinkClickedEventHandler(this.LnkKayitOl_LinkClicked);
+
             // LoginForm
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(240, 244, 248);
-            this.ClientSize = new System.Drawing.Size(400, 300);
+            this.ClientSize = new System.Drawing.Size(400, 310);
             this.Controls.Add(this.lblBaslik);
             this.Controls.Add(this.lblKullaniciAdi);
             this.Controls.Add(this.txtKullaniciAdi);
             this.Controls.Add(this.lblSifre);
             this.Controls.Add(this.txtSifre);
             this.Controls.Add(this.btnGiris);
+            this.Controls.Add(this.lnkKayitOl);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -148,5 +162,16 @@ namespace CompanyTaskProjectManagement.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-    }
+
+        private void LnkKayitOl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var registerForm = new RegisterForm(_userService);
+            registerForm.ShowDialog();
+            
+            if (registerForm.IsRegistered)
+            {
+                MessageBox.Show("Kayıt başarılı! Şimdi giriş yapabilirsiniz.", "Bilgi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }   }
 }
