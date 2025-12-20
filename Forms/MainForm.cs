@@ -64,40 +64,51 @@ namespace CompanyTaskProjectManagement.Forms
                 this.menuKullanicilar,
                 this.menuCikis
             });
+            this.menuStrip.BackColor = Color.FromArgb(0, 120, 215);
+            this.menuStrip.Font = new Font("Segoe UI", 11F, FontStyle.Regular);
             this.menuStrip.Location = new Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new Size(800, 24);
+            this.menuStrip.Padding = new Padding(10, 8, 0, 8);
+            this.menuStrip.Size = new Size(800, 40);
 
             // menuProjeler
+            this.menuProjeler.ForeColor = Color.White;
             this.menuProjeler.Name = "menuProjeler";
-            this.menuProjeler.Size = new Size(60, 20);
-            this.menuProjeler.Text = "Projeler";
+            this.menuProjeler.Padding = new Padding(15, 5, 15, 5);
+            this.menuProjeler.Size = new Size(90, 24);
+            this.menuProjeler.Text = "📁 Projeler";
             this.menuProjeler.Click += MenuProjeler_Click;
 
             // menuGorevler
+            this.menuGorevler.ForeColor = Color.White;
             this.menuGorevler.Name = "menuGorevler";
-            this.menuGorevler.Size = new Size(65, 20);
-            this.menuGorevler.Text = "Görevler";
+            this.menuGorevler.Padding = new Padding(15, 5, 15, 5);
+            this.menuGorevler.Size = new Size(95, 24);
+            this.menuGorevler.Text = "✓ Görevler";
             this.menuGorevler.Click += MenuGorevler_Click;
 
             // menuKullanicilar
+            this.menuKullanicilar.ForeColor = Color.White;
             this.menuKullanicilar.Name = "menuKullanicilar";
-            this.menuKullanicilar.Size = new Size(80, 20);
-            this.menuKullanicilar.Text = "Kullanıcılar";
+            this.menuKullanicilar.Padding = new Padding(15, 5, 15, 5);
+            this.menuKullanicilar.Size = new Size(115, 24);
+            this.menuKullanicilar.Text = "👥 Kullanıcılar";
             this.menuKullanicilar.Visible = (_currentUser.Rol == UserRole.Admin);
             this.menuKullanicilar.Click += MenuKullanicilar_Click;
 
             // menuCikis
+            this.menuCikis.ForeColor = Color.White;
             this.menuCikis.Name = "menuCikis";
-            this.menuCikis.Size = new Size(44, 20);
-            this.menuCikis.Text = "Çıkış";
+            this.menuCikis.Padding = new Padding(15, 5, 15, 5);
+            this.menuCikis.Size = new Size(70, 24);
+            this.menuCikis.Text = "🚪 Çıkış";
             this.menuCikis.Click += MenuCikis_Click;
 
             // lblHosgeldin
             this.lblHosgeldin.AutoSize = true;
             this.lblHosgeldin.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             this.lblHosgeldin.ForeColor = Color.FromArgb(0, 120, 215);
-            this.lblHosgeldin.Location = new Point(20, 40);
+            this.lblHosgeldin.Location = new Point(20, 60);
             this.lblHosgeldin.Name = "lblHosgeldin";
             this.lblHosgeldin.Text = $"Hoşgeldiniz, {_currentUser.AdSoyad}";
 
@@ -105,7 +116,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.grpIstatistikler.BackColor = Color.White;
             this.grpIstatistikler.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             this.grpIstatistikler.ForeColor = Color.FromArgb(0, 120, 215);
-            this.grpIstatistikler.Location = new Point(20, 80);
+            this.grpIstatistikler.Location = new Point(20, 100);
             this.grpIstatistikler.Name = "grpIstatistikler";
             this.grpIstatistikler.Size = new Size(760, 200);
             this.grpIstatistikler.Text = "İstatistikler";
