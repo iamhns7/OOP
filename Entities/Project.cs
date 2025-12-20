@@ -37,6 +37,7 @@ namespace CompanyTaskProjectManagement.Entities
             get => _bitisTarihi; 
             set => _bitisTarihi = value; 
         }
+        public string Ad { get; internal set; }
 
         public Project()
         {
