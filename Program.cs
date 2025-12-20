@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Forms;
+using CompanyTaskProjectManagement.Entities;
 using CompanyTaskProjectManagement.Forms;
 using CompanyTaskProjectManagement.Repositories;
 using CompanyTaskProjectManagement.Services;
@@ -28,14 +29,59 @@ namespace CompanyTaskProjectManagement
             var projectService = new ProjectService(projectRepository);
             var taskService = new TaskService(taskRepository, projectRepository, userRepository);
 
-            // Login formunu göster
-            using (var loginForm = new LoginForm(userService))
+            // Giriş türü seçim formu
+            while (true)
             {
-                if (loginForm.ShowDialog() == DialogResult.OK)
+                using (var roleSelectionForm = new RoleSelectionForm())
                 {
+                    if (roleSelectionForm.ShowDialog() != DialogResult.OK)
+                    {
+                        // Kullanıcı çıkış yaptı
+                        return;
+                    }
+
+                    bool isAdminLogin = roleSelectionForm.IsAdminLogin;
+                    User authenticatedUser = null;
+
+                    if (isAdminLogin)
+                    {
+                        // Admin girişi
+                        using (var adminLoginForm = new AdminLoginForm(userService))
+                        {
+                            if (adminLoginForm.ShowDialog() == DialogResult.OK)
+                            {
+                                authenticatedUser = adminLoginForm.AuthenticatedUser;
+                            }
+                            else
+                            {
+                                // Admin giriş iptal - tekrar rol seçimine dön
+                                continue;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Normal kullanıcı girişi
+                        using (var loginForm = new LoginForm(userService))
+                        {
+                            if (loginForm.ShowDialog() == DialogResult.OK)
+                            {
+                                authenticatedUser = loginForm.AuthenticatedUser;
+                            }
+                            else
+                            {
+                                // Normal giriş iptal - tekrar rol seçimine dön
+                                continue;
+                            }
+                        }
+                    }
+
                     // Başarılı giriş - Ana formu aç
-                    var authenticatedUser = loginForm.AuthenticatedUser;
-                    Application.Run(new MainForm(authenticatedUser, userService, projectService, taskService));
+                    if (authenticatedUser != null)
+                    {
+                        Application.Run(new MainForm(authenticatedUser, userService, projectService, taskService));
+                        break;
+                    }
                 }
             }
         }

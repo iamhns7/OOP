@@ -78,6 +78,11 @@ namespace CompanyTaskProjectManagement.Services
             return _userRepository.Authenticate(kullaniciAdi, sifre);
         }
 
+        public User Login(string kullaniciAdi, string sifre)
+        {
+            return Authenticate(kullaniciAdi, sifre);
+        }
+
         private void ValidateUser(User user)
         {
             if (string.IsNullOrWhiteSpace(user.AdSoyad))
