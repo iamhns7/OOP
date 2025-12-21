@@ -54,6 +54,34 @@ namespace CompanyTaskProjectManagement.Entities
             _bitisTarihi = bitisTarihi;
         }
 
+        /// <summary>
+        /// Projenin tamamlanma yüzdesini hesaplar (Calculated Property)
+        /// OOP: Encapsulation - İş mantığı entity içinde
+        /// </summary>
+        public int GetCompletionPercentage(int totalTasks, int completedTasks)
+        {
+            if (totalTasks == 0) return 0;
+            return (int)((double)completedTasks / totalTasks * 100);
+        }
+
+        /// <summary>
+        /// Projenin aktif olup olmadığını kontrol eder
+        /// </summary>
+        public bool IsActive()
+        {
+            if (!BitisTarihi.HasValue) return true;
+            return BitisTarihi.Value >= DateTime.Now;
+        }
+
+        /// <summary>
+        /// Projenin toplam gün sayısını hesaplar
+        /// </summary>
+        public int GetTotalDays()
+        {
+            var endDate = BitisTarihi ?? DateTime.Now;
+            return (endDate - BaslangicTarihi).Days;
+        }
+
         public override string ToString()
         {
             return $"{ProjeAdi} ({BaslangicTarihi:dd.MM.yyyy})";

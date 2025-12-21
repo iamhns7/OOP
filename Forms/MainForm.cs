@@ -38,6 +38,9 @@ namespace CompanyTaskProjectManagement.Forms
         private Button btnTumGorevler;
         private GroupBox grpSonGorevler;
         private ListBox lstSonGorevler;
+        private GroupBox grpKullaniciPerformans;
+        private Label lblKullaniciPerformans;
+        private ProgressBar prgKullaniciBasari;
 
         public MainForm(User currentUser, UserService userService, 
             ProjectService projectService, TaskService taskService)
@@ -94,6 +97,9 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnTumGorevler = new Button();
             this.grpSonGorevler = new GroupBox();
             this.lstSonGorevler = new ListBox();
+            this.grpKullaniciPerformans = new GroupBox();
+            this.lblKullaniciPerformans = new Label();
+            this.prgKullaniciBasari = new ProgressBar();
             
             this.SuspendLayout();
 
@@ -269,9 +275,9 @@ namespace CompanyTaskProjectManagement.Forms
             this.grpSonGorevler.BackColor = Color.White;
             this.grpSonGorevler.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             this.grpSonGorevler.ForeColor = Color.FromArgb(0, 120, 215);
-            this.grpSonGorevler.Location = new Point(20, 350);
+            this.grpSonGorevler.Location = new Point(400, 350);
             this.grpSonGorevler.Name = "grpSonGorevler";
-            this.grpSonGorevler.Size = new Size(760, 230);
+            this.grpSonGorevler.Size = new Size(380, 230);
             this.grpSonGorevler.Text = "🕒 Son Eklenen Görevler";
             this.grpSonGorevler.Controls.Add(this.lstSonGorevler);
 
@@ -282,7 +288,33 @@ namespace CompanyTaskProjectManagement.Forms
             this.lstSonGorevler.ForeColor = Color.FromArgb(60, 60, 60);
             this.lstSonGorevler.Location = new Point(15, 30);
             this.lstSonGorevler.Name = "lstSonGorevler";
-            this.lstSonGorevler.Size = new Size(730, 185);
+            this.lstSonGorevler.Size = new Size(350, 185);
+
+            // grpKullaniciPerformans
+            this.grpKullaniciPerformans.BackColor = Color.White;
+            this.grpKullaniciPerformans.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.grpKullaniciPerformans.ForeColor = Color.FromArgb(0, 120, 215);
+            this.grpKullaniciPerformans.Location = new Point(20, 350);
+            this.grpKullaniciPerformans.Name = "grpKullaniciPerformans";
+            this.grpKullaniciPerformans.Size = new Size(360, 230);
+            this.grpKullaniciPerformans.Text = "📊 Performansım";
+            this.grpKullaniciPerformans.Controls.Add(this.lblKullaniciPerformans);
+            this.grpKullaniciPerformans.Controls.Add(this.prgKullaniciBasari);
+
+            // lblKullaniciPerformans
+            this.lblKullaniciPerformans.AutoSize = false;
+            this.lblKullaniciPerformans.Font = new Font("Segoe UI", 9F);
+            this.lblKullaniciPerformans.ForeColor = Color.FromArgb(80, 80, 80);
+            this.lblKullaniciPerformans.Location = new Point(15, 30);
+            this.lblKullaniciPerformans.Size = new Size(330, 115);
+            this.lblKullaniciPerformans.Text = "Yükleniyor...";
+
+            // prgKullaniciBasari
+            this.prgKullaniciBasari.Location = new Point(15, 155);
+            this.prgKullaniciBasari.Name = "prgKullaniciBasari";
+            this.prgKullaniciBasari.Size = new Size(330, 30);
+            this.prgKullaniciBasari.Style = ProgressBarStyle.Continuous;
+            this.prgKullaniciBasari.ForeColor = Color.FromArgb(40, 167, 69);
 
             // MainForm
             this.AutoScaleDimensions = new SizeF(7F, 15F);
@@ -293,6 +325,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.Controls.Add(this.lblKullaniciBilgi);
             this.Controls.Add(this.grpIstatistikler);
             this.Controls.Add(this.grpHizliIslemler);
+            this.Controls.Add(this.grpKullaniciPerformans);
             this.Controls.Add(this.grpSonGorevler);
             this.Controls.Add(this.menuStrip);
             this.MainMenuStrip = this.menuStrip;
@@ -365,11 +398,52 @@ namespace CompanyTaskProjectManagement.Forms
 
                 // Son 5 görevi yükle
                 LoadRecentTasks();
+                
+                // Kullanıcı performansını yükle
+                LoadUserPerformance();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"İstatistikler yüklenirken hata: {ex.Message}", "Hata",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Kullanıcı performans istatistiklerini yükler ve gösterir
+        /// OOP: Service katmanından veri çekme ve UI'da gösterme
+        /// </summary>
+        private void LoadUserPerformance()
+        {
+            try
+            {
+                var stats = _taskService.GetUserStatistics(_currentUser.Id);
+                
+                var total = stats["TotalAssigned"];
+                var completed = stats["Completed"];
+                var inProgress = stats["InProgress"];
+                var pending = stats["Pending"];
+                var overdue = stats["Overdue"];
+                var highPriority = stats["HighPriority"];
+
+                var performanceText = $"📌 Toplam Atanan: {total}\n" +
+                                    $"✅ Tamamlanan: {completed}\n" +
+                                    $"🔄 Devam Eden: {inProgress}\n" +
+                                    $"⏳ Bekleyen: {pending}\n" +
+                                    $"⚠️ Gecikmiş: {overdue}\n" +
+                                    $"🔥 Yüksek Öncelikli: {highPriority}";
+
+                lblKullaniciPerformans.Text = performanceText;
+
+                // Başarı yüzdesi hesapla
+                int successRate = total > 0 ? (completed * 100 / total) : 0;
+                prgKullaniciBasari.Value = Math.Min(successRate, 100);
+                
+                // ProgressBar rengini başarı oranına göre ayarla (Windows Forms sınırlaması nedeniyle stil değişmez)
+            }
+            catch (Exception ex)
+            {
+                lblKullaniciPerformans.Text = $"Performans verileri yüklenemedi:\n{ex.Message}";
             }
         }
 

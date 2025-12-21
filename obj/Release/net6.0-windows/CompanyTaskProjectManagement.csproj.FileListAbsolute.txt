@@ -1,0 +1,15 @@
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\bin\Release\net6.0-windows\CompanyTaskProjectManagement.exe
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\bin\Release\net6.0-windows\CompanyTaskProjectManagement.deps.json
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\bin\Release\net6.0-windows\CompanyTaskProjectManagement.runtimeconfig.json
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\bin\Release\net6.0-windows\CompanyTaskProjectManagement.dll
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\bin\Release\net6.0-windows\CompanyTaskProjectManagement.pdb
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.AssemblyInfoInputs.cache
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.AssemblyInfo.cs
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.csproj.CoreCompileInputs.cache
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.sourcelink.json
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.dll
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\refint\CompanyTaskProjectManagement.dll
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.pdb
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\CompanyTaskProjectManagement.genruntimeconfig.cache
+C:\Users\ASUS\Desktop\OOP\CompanyTaskProjectManagement\obj\Release\net6.0-windows\ref\CompanyTaskProjectManagement.dll

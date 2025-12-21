@@ -87,6 +87,51 @@ namespace CompanyTaskProjectManagement.Services
                 .Where(t => t.Oncelik == oncelik);
         }
 
+        /// <summary>
+        /// Görevlerde arama yapar (LINQ örneği)
+        /// </summary>
+        public IEnumerable<Task> SearchTasks(string searchText)
+        {
+            if (string.IsNullOrWhiteSpace(searchText))
+                return _taskRepository.GetAll();
+
+            searchText = searchText.ToLower();
+            return _taskRepository.GetAll()
+                .Where(t => t.Baslik.ToLower().Contains(searchText) || 
+                           (t.Aciklama != null && t.Aciklama.ToLower().Contains(searchText)));
+        }
+
+        /// <summary>
+        /// Görevleri akıllıca sıralar: Önce gecikmiş, sonra yüksek öncelikli, sonra son tarihe göre
+        /// OOP: Business Logic in Service Layer
+        /// </summary>
+        public IEnumerable<Task> GetTasksSorted()
+        {
+            return _taskRepository.GetAll()
+                .OrderByDescending(t => t.IsOverdue())
+                .ThenByDescending(t => t.Oncelik)
+                .ThenBy(t => t.SonTarih ?? DateTime.MaxValue)
+                .ThenBy(t => t.OlusturmaTarihi);
+        }
+
+        /// <summary>
+        /// Kullanıcının performans istatistiklerini hesaplar
+        /// </summary>
+        public Dictionary<string, int> GetUserStatistics(int userId)
+        {
+            var userTasks = _taskRepository.GetByUserId(userId).ToList();
+            
+            return new Dictionary<string, int>
+            {
+                { "TotalAssigned", userTasks.Count },
+                { "Completed", userTasks.Count(t => t.Durum == TaskStatus.Tamamlandi) },
+                { "InProgress", userTasks.Count(t => t.Durum == TaskStatus.DevamEdiyor) },
+                { "Pending", userTasks.Count(t => t.Durum == TaskStatus.Beklemede) },
+                { "Overdue", userTasks.Count(t => t.IsOverdue()) },
+                { "HighPriority", userTasks.Count(t => t.Oncelik == TaskPriority.Yuksek) }
+            };
+        }
+
         public void AddTask(Task task)
         {
             if (task == null)

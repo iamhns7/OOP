@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CompanyTaskProjectManagement.Entities;
 using CompanyTaskProjectManagement.Repositories;
 
@@ -64,6 +65,29 @@ namespace CompanyTaskProjectManagement.Services
                 throw new InvalidOperationException("Proje bulunamadı!");
 
             _projectRepository.Delete(id);
+        }
+
+        /// <summary>
+        /// Proje istatistiklerini döndürür (Aggregation örneği)
+        /// </summary>
+        public Dictionary<string, object> GetProjectStatistics(int projectId, IEnumerable<Task> projectTasks)
+        {
+            var tasks = projectTasks.ToList();
+            var totalTasks = tasks.Count;
+            var completedTasks = tasks.Count(t => t.Durum == TaskStatus.Tamamlandi);
+            var pendingTasks = tasks.Count(t => t.Durum == TaskStatus.Beklemede);
+            var inProgressTasks = tasks.Count(t => t.Durum == TaskStatus.DevamEdiyor);
+            var overdueTasks = tasks.Count(t => t.IsOverdue());
+
+            return new Dictionary<string, object>
+            {
+                { "TotalTasks", totalTasks },
+                { "CompletedTasks", completedTasks },
+                { "PendingTasks", pendingTasks },
+                { "InProgressTasks", inProgressTasks },
+                { "OverdueTasks", overdueTasks },
+                { "CompletionPercentage", totalTasks > 0 ? (completedTasks * 100 / totalTasks) : 0 }
+            };
         }
 
         private void ValidateProject(Project project)

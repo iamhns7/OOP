@@ -135,6 +135,43 @@ dotnet run
 - Proje yönetimine erişim yok
 - Salt okunur proje listesi görüntüleme
 
+## Yeni Özellikler (v3.0) ⭐
+
+### 5. Akıllı Görev Arama 🔍
+- **Gerçek zamanlı arama**: Başlık ve açıklamada anında arama
+- **LINQ kullanımı**: Performanslı veri filtreleme
+- **Rol bazlı arama**: Çalışanlar sadece kendi görevlerinde arama yapabilir
+
+### 6. Gelişmiş Sıralama Sistemi 📊
+- **Akıllı Sıralama**: Gecikmiş → Yüksek Öncelik → Son Tarih sıralaması
+- **Öncelik Sıralaması**: Yüksek → Orta → Düşük
+- **Son Tarih Sıralaması**: Yakın → Uzak
+- **Durum Sıralaması**: Beklemede → Devam Ediyor → Tamamlandı
+
+### 7. Kullanıcı Performans İstatistikleri 📈
+- **Kişisel Dashboard**: Her kullanıcı için özelleştirilmiş istatistikler
+- **Görsel ProgressBar**: Başarı yüzdesini gösteren ilerleme çubuğu
+- **Detaylı Metrikler**:
+  - Toplam atanan görev sayısı
+  - Tamamlanan görev sayısı
+  - Devam eden görevler
+  - Bekleyen görevler
+  - Gecikmiş görevler
+  - Yüksek öncelikli görevler
+
+### 8. Proje İlerleme Hesaplama (Calculated Properties) 🎯
+- **Project.GetCompletionPercentage()**: Proje tamamlanma yüzdesi
+- **Project.IsActive()**: Projenin aktif olup olmadığını kontrol
+- **Project.GetTotalDays()**: Proje toplam gün sayısı
+- **OOP Örneği**: Encapsulation - İş mantığı entity içinde
+
+### 9. Görsel İyileştirmeler 🎨
+- **Renkli Görev Vurgulama**:
+  - 🔴 Kırmızı: Son tarihi geçmiş görevler
+  - 🟠 Turuncu: Yüksek öncelikli görevler
+- **Dashboard Yenileme**: Daha modern ve bilgilendirici arayüz
+- **ProgressBar**: Kullanıcı başarı oranı göstergesi
+
 
 - 3 örnek proje
 - 7 örnek görev

@@ -24,7 +24,11 @@ namespace CompanyTaskProjectManagement.Forms
         private Button btnSil;
         private Button btnKapat;
         private ComboBox cmbFiltre;
+        private ComboBox cmbSiralama;
+        private TextBox txtArama;
         private Label lblFiltre;
+        private Label lblSiralama;
+        private Label lblArama;
         private GroupBox grpDetay;
         private TextBox txtBaslik;
         private TextBox txtAciklama;
@@ -69,6 +73,10 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnKapat = new Button();
             this.lblFiltre = new Label();
             this.cmbFiltre = new ComboBox();
+            this.lblSiralama = new Label();
+            this.cmbSiralama = new ComboBox();
+            this.lblArama = new Label();
+            this.txtArama = new TextBox();
             this.grpDetay = new GroupBox();
             this.lblBaslik = new Label();
             this.txtBaslik = new TextBox();
@@ -96,12 +104,12 @@ namespace CompanyTaskProjectManagement.Forms
             this.dgvTasks.AllowUserToAddRows = false;
             this.dgvTasks.AllowUserToDeleteRows = false;
             this.dgvTasks.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvTasks.Location = new Point(12, 50);
+            this.dgvTasks.Location = new Point(12, 80);
             this.dgvTasks.MultiSelect = false;
             this.dgvTasks.Name = "dgvTasks";
             this.dgvTasks.ReadOnly = true;
             this.dgvTasks.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            this.dgvTasks.Size = new Size(600, 310);
+            this.dgvTasks.Size = new Size(600, 280);
             this.dgvTasks.TabIndex = 0;
 
             // lblFiltre
@@ -112,7 +120,7 @@ namespace CompanyTaskProjectManagement.Forms
             // cmbFiltre
             this.cmbFiltre.DropDownStyle = ComboBoxStyle.DropDownList;
             this.cmbFiltre.Location = new Point(60, 12);
-            this.cmbFiltre.Size = new Size(200, 23);
+            this.cmbFiltre.Size = new Size(150, 23);
             this.cmbFiltre.Items.AddRange(new object[] { 
                 "Tümü", 
                 "Beklemede", 
@@ -123,6 +131,36 @@ namespace CompanyTaskProjectManagement.Forms
             });
             this.cmbFiltre.SelectedIndex = 0;
             this.cmbFiltre.SelectedIndexChanged += CmbFiltre_SelectedIndexChanged;
+
+            // lblSiralama
+            this.lblSiralama.AutoSize = true;
+            this.lblSiralama.Location = new Point(12, 45);
+            this.lblSiralama.Text = "Sırala:";
+
+            // cmbSiralama
+            this.cmbSiralama.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cmbSiralama.Location = new Point(60, 42);
+            this.cmbSiralama.Size = new Size(150, 23);
+            this.cmbSiralama.Items.AddRange(new object[] { 
+                "Varsayılan", 
+                "Akıllı Sıralama",
+                "Öncelik (Yüksek→Düşük)",
+                "Son Tarih (Yakın→Uzak)",
+                "Durum"
+            });
+            this.cmbSiralama.SelectedIndex = 0;
+            this.cmbSiralama.SelectedIndexChanged += CmbSiralama_SelectedIndexChanged;
+
+            // lblArama
+            this.lblArama.AutoSize = true;
+            this.lblArama.Location = new Point(230, 15);
+            this.lblArama.Text = "🔍 Ara:";
+
+            // txtArama
+            this.txtArama.Location = new Point(280, 12);
+            this.txtArama.Size = new Size(200, 23);
+            this.txtArama.PlaceholderText = "Görev ara...";
+            this.txtArama.TextChanged += TxtArama_TextChanged;
 
             // btnYeni
             this.btnYeni.BackColor = Color.FromArgb(16, 124, 16);
@@ -279,6 +317,10 @@ namespace CompanyTaskProjectManagement.Forms
             this.ClientSize = new Size(1000, 510);
             this.Controls.Add(this.lblFiltre);
             this.Controls.Add(this.cmbFiltre);
+            this.Controls.Add(this.lblSiralama);
+            this.Controls.Add(this.cmbSiralama);
+            this.Controls.Add(this.lblArama);
+            this.Controls.Add(this.txtArama);
             this.Controls.Add(this.dgvTasks);
             this.Controls.Add(this.btnYeni);
             this.Controls.Add(this.btnDuzenle);
@@ -588,6 +630,84 @@ namespace CompanyTaskProjectManagement.Forms
         private void BtnIptal_Click(object sender, EventArgs e)
         {
             grpDetay.Visible = false;
+        }
+
+        /// <summary>
+        /// Arama textbox değiştiğinde görevleri filtrele
+        /// </summary>
+        private void TxtArama_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                var searchText = txtArama.Text.Trim();
+                var tasks = string.IsNullOrWhiteSpace(searchText) 
+                    ? _taskService.GetAllTasks().ToList()
+                    : _taskService.SearchTasks(searchText).ToList();
+
+                // Rol bazlı filtreleme
+                if (_currentUser.Rol == UserRole.Calisan)
+                {
+                    tasks = tasks.Where(t => t.AtananKullaniciId == _currentUser.Id).ToList();
+                }
+
+                dgvTasks.DataSource = tasks;
+                HighlightOverdueTasks();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Arama hatası: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Sıralama değiştiğinde görevleri yeniden düzenle
+        /// </summary>
+        private void CmbSiralama_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                IEnumerable<Task> tasks;
+
+                switch (cmbSiralama.SelectedIndex)
+                {
+                    case 0: // Varsayılan
+                        tasks = _taskService.GetAllTasks();
+                        break;
+                    case 1: // Akıllı Sıralama (Gecikmiş → Yüksek Öncelik → Son Tarih)
+                        tasks = _taskService.GetTasksSorted();
+                        break;
+                    case 2: // Öncelik
+                        tasks = _taskService.GetAllTasks()
+                            .OrderByDescending(t => t.Oncelik);
+                        break;
+                    case 3: // Son Tarih
+                        tasks = _taskService.GetAllTasks()
+                            .OrderBy(t => t.SonTarih ?? DateTime.MaxValue);
+                        break;
+                    case 4: // Durum
+                        tasks = _taskService.GetAllTasks()
+                            .OrderBy(t => t.Durum);
+                        break;
+                    default:
+                        tasks = _taskService.GetAllTasks();
+                        break;
+                }
+
+                // Rol bazlı filtreleme
+                if (_currentUser.Rol == UserRole.Calisan)
+                {
+                    tasks = tasks.Where(t => t.AtananKullaniciId == _currentUser.Id);
+                }
+
+                dgvTasks.DataSource = tasks.ToList();
+                HighlightOverdueTasks();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Sıralama hatası: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
