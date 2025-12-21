@@ -375,25 +375,31 @@ namespace CompanyTaskProjectManagement.Forms
                 }
 
                 // Kullanıcıya özel görev sayısı
-                int kullaniciGorevSayisi = 0;
-                foreach (var task in allTasks)
-                {
-                    if (task.AtananKullaniciId == _currentUser.Id && task.Durum == TaskStatus.Beklemede)
-                    {
-                        kullaniciGorevSayisi++;
-                    }
-                }
+                var myAssignedTasks = allTasks.Where(t => t.AtananKullaniciId == _currentUser.Id).ToList();
+                int kullaniciGorevSayisi = myAssignedTasks.Count(t => t.Durum == TaskStatus.Beklemede);
+                int tamamlanan = myAssignedTasks.Count(t => t.Durum == TaskStatus.Tamamlandi);
+                int toplamAtanan = myAssignedTasks.Count;
 
                 // Kullanıcı bilgilendirme mesajı
-                if (kullaniciGorevSayisi > 0)
+                if (toplamAtanan == 0)
+                {
+                    lblKullaniciBilgi.Text = "ℹ️ Size henüz görev atanmamış.";
+                    lblKullaniciBilgi.ForeColor = Color.FromArgb(108, 117, 125);
+                }
+                else if (kullaniciGorevSayisi > 0)
                 {
                     lblKullaniciBilgi.Text = $"⚠️ Size atanmış {kullaniciGorevSayisi} adet bekleyen görev var!";
                     lblKullaniciBilgi.ForeColor = Color.FromArgb(220, 53, 69);
                 }
-                else
+                else if (toplamAtanan > 0 && tamamlanan == toplamAtanan)
                 {
                     lblKullaniciBilgi.Text = "✅ Tüm görevleriniz tamamlanmış durumda.";
                     lblKullaniciBilgi.ForeColor = Color.FromArgb(40, 167, 69);
+                }
+                else
+                {
+                    lblKullaniciBilgi.Text = $"🔄 {toplamAtanan - tamamlanan} göreviniz devam ediyor.";
+                    lblKullaniciBilgi.ForeColor = Color.FromArgb(255, 140, 0);
                 }
 
                 // Son 5 görevi yükle
@@ -410,8 +416,7 @@ namespace CompanyTaskProjectManagement.Forms
         }
 
         /// <summary>
-        /// Kullanıcı performans istatistiklerini yükler ve gösterir
-        /// OOP: Service katmanından veri çekme ve UI'da gösterme
+        /// Kullanıcı performans istatistiklerini yükler
         /// </summary>
         private void LoadUserPerformance()
         {
@@ -419,31 +424,44 @@ namespace CompanyTaskProjectManagement.Forms
             {
                 var stats = _taskService.GetUserStatistics(_currentUser.Id);
                 
-                var total = stats["TotalAssigned"];
-                var completed = stats["Completed"];
-                var inProgress = stats["InProgress"];
-                var pending = stats["Pending"];
-                var overdue = stats["Overdue"];
-                var highPriority = stats["HighPriority"];
+                int totalAssigned = stats["TotalAssigned"];
+                int completed = stats["Completed"];
+                int inProgress = stats["InProgress"];
+                int pending = stats["Pending"];
+                int overdue = stats["Overdue"];
+                int highPriority = stats["HighPriority"];
 
-                var performanceText = $"📌 Toplam Atanan: {total}\n" +
-                                    $"✅ Tamamlanan: {completed}\n" +
-                                    $"🔄 Devam Eden: {inProgress}\n" +
-                                    $"⏳ Bekleyen: {pending}\n" +
-                                    $"⚠️ Gecikmiş: {overdue}\n" +
-                                    $"🔥 Yüksek Öncelikli: {highPriority}";
+                // Performans metni
+                var performanceText = $"📊 Toplam Atanan: {totalAssigned}\n" +
+                                     $"✅ Tamamlanan: {completed}\n" +
+                                     $"🔄 Devam Eden: {inProgress}\n" +
+                                     $"⏳ Bekleyen: {pending}\n" +
+                                     $"⚠️ Gecikmiş: {overdue}\n" +
+                                     $"🔥 Yüksek Öncelik: {highPriority}";
 
                 lblKullaniciPerformans.Text = performanceText;
 
                 // Başarı yüzdesi hesapla
-                int successRate = total > 0 ? (completed * 100 / total) : 0;
-                prgKullaniciBasari.Value = Math.Min(successRate, 100);
-                
-                // ProgressBar rengini başarı oranına göre ayarla (Windows Forms sınırlaması nedeniyle stil değişmez)
+                int successPercentage = totalAssigned > 0 ? (completed * 100 / totalAssigned) : 0;
+                prgKullaniciBasari.Value = Math.Min(successPercentage, 100);
+
+                // ProgressBar rengini başarıya göre ayarla
+                if (successPercentage >= 75)
+                {
+                    prgKullaniciBasari.ForeColor = Color.FromArgb(40, 167, 69); // Yeşil
+                }
+                else if (successPercentage >= 50)
+                {
+                    prgKullaniciBasari.ForeColor = Color.FromArgb(255, 193, 7); // Sarı
+                }
+                else
+                {
+                    prgKullaniciBasari.ForeColor = Color.FromArgb(220, 53, 69); // Kırmızı
+                }
             }
             catch (Exception ex)
             {
-                lblKullaniciPerformans.Text = $"Performans verileri yüklenemedi:\n{ex.Message}";
+                lblKullaniciPerformans.Text = $"Performans bilgisi yüklenemedi:\n{ex.Message}";
             }
         }
 
