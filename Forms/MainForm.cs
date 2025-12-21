@@ -48,7 +48,29 @@ namespace CompanyTaskProjectManagement.Forms
             _taskService = taskService ?? throw new ArgumentNullException(nameof(taskService));
             
             InitializeComponent();
+            ConfigureRoleBasedUI(); // Rol bazlı arayüz ayarları
             LoadStatistics();
+        }
+
+        /// <summary>
+        /// Rol bazlı arayüz ayarlaması (SOLID: Single Responsibility)
+        /// </summary>
+        private void ConfigureRoleBasedUI()
+        {
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                // Çalışanlar için menü ve buton kısıtlamaları
+                menuProjeler.Visible = false; // Çalışanlar proje yönetimine erişemez
+                menuKullanicilar.Visible = false; // Kullanıcı yönetimi admin'e özel
+                btnYeniProje.Visible = false; // Proje oluşturma butonu gizle
+                
+                // Hoşgeldin mesajını güncelle
+                lblHosgeldin.Text = $"Hoşgeldin, {_currentUser.AdSoyad} (Çalışan) 👤";
+            }
+            else if (_currentUser.Rol == UserRole.Admin)
+            {
+                lblHosgeldin.Text = $"Hoşgeldin, {_currentUser.AdSoyad} (Admin) 👨‍💼";
+            }
         }
 
         private void InitializeComponent()
@@ -285,18 +307,43 @@ namespace CompanyTaskProjectManagement.Forms
         {
             try
             {
-                var projects = _projectService.GetAllProjects();
-                var tasks = _taskService.GetAllTasks();
+                var allProjects = _projectService.GetAllProjects();
+                var allTasks = _taskService.GetAllTasks();
                 var stats = _taskService.GetTaskStatistics();
 
                 int toplamProje = 0;
                 int toplamGorev = 0;
-                foreach (var p in projects) toplamProje++;
-                foreach (var t in tasks) toplamGorev++;
+
+                // Rol bazlı veri gösterimi
+                if (_currentUser.Rol == UserRole.Calisan)
+                {
+                    // Çalışanlar sadece kendilerine atanmış görevleri görür
+                    var myTasks = allTasks.Where(t => t.AtananKullaniciId == _currentUser.Id).ToList();
+                    toplamGorev = myTasks.Count;
+                    
+                    // Sadece görev istatistikleri
+                    lblToplamProje.Text = "📁 Toplam Proje: -";
+                    lblToplamGorev.Text = $"📋 Bana Atanan Görev: {toplamGorev}";
+                    lblBekleyenGorev.Text = $"🔴 Bekleyen: {myTasks.Count(t => t.Durum == TaskStatus.Beklemede)}";
+                    lblDevamEdenGorev.Text = $"🟠 Devam Eden: {myTasks.Count(t => t.Durum == TaskStatus.DevamEdiyor)}";
+                    lblTamamlananGorev.Text = $"🟢 Tamamlanan: {myTasks.Count(t => t.Durum == TaskStatus.Tamamlandi)}";
+                }
+                else
+                {
+                    // Admin tüm verileri görür
+                    foreach (var p in allProjects) toplamProje++;
+                    foreach (var t in allTasks) toplamGorev++;
+
+                    lblToplamProje.Text = $"📁 Toplam Proje: {toplamProje}";
+                    lblToplamGorev.Text = $"📋 Toplam Görev: {toplamGorev}";
+                    lblBekleyenGorev.Text = $"🔴 Bekleyen: {stats[TaskStatus.Beklemede]}";
+                    lblDevamEdenGorev.Text = $"🟠 Devam Eden: {stats[TaskStatus.DevamEdiyor]}";
+                    lblTamamlananGorev.Text = $"🟢 Tamamlanan: {stats[TaskStatus.Tamamlandi]}";
+                }
 
                 // Kullanıcıya özel görev sayısı
                 int kullaniciGorevSayisi = 0;
-                foreach (var task in tasks)
+                foreach (var task in allTasks)
                 {
                     if (task.AtananKullaniciId == _currentUser.Id && task.Durum == TaskStatus.Beklemede)
                     {
@@ -315,12 +362,6 @@ namespace CompanyTaskProjectManagement.Forms
                     lblKullaniciBilgi.Text = "✅ Tüm görevleriniz tamamlanmış durumda.";
                     lblKullaniciBilgi.ForeColor = Color.FromArgb(40, 167, 69);
                 }
-
-                lblToplamProje.Text = $"📁 Toplam Proje: {toplamProje}";
-                lblToplamGorev.Text = $"📋 Toplam Görev: {toplamGorev}";
-                lblBekleyenGorev.Text = $"🔴 Bekleyen: {stats[TaskStatus.Beklemede]}";
-                lblDevamEdenGorev.Text = $"🟠 Devam Eden: {stats[TaskStatus.DevamEdiyor]}";
-                lblTamamlananGorev.Text = $"🟢 Tamamlanan: {stats[TaskStatus.Tamamlandi]}";
 
                 // Son 5 görevi yükle
                 LoadRecentTasks();
@@ -368,7 +409,15 @@ namespace CompanyTaskProjectManagement.Forms
 
         private void MenuProjeler_Click(object sender, EventArgs e)
         {
-            var projectForm = new ProjectForm(_projectService);
+            // Rol kontrolü: Sadece admin projeleri yönetebilir
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                MessageBox.Show("Proje yönetimi sadece yöneticiler için erişilebilir!", "Yetki Hatası",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var projectForm = new ProjectForm(_projectService, _currentUser);
             projectForm.ShowDialog();
             LoadStatistics();
         }
@@ -397,7 +446,15 @@ namespace CompanyTaskProjectManagement.Forms
 
         private void BtnYeniProje_Click(object sender, EventArgs e)
         {
-            var projectForm = new ProjectForm(_projectService);
+            // Rol kontrolü: Sadece admin yeni proje oluşturabilir
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                MessageBox.Show("Yeni proje oluşturma sadece yöneticiler için erişilebilir!", "Yetki Hatası",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var projectForm = new ProjectForm(_projectService, _currentUser);
             projectForm.ShowDialog();
             LoadStatistics();
         }

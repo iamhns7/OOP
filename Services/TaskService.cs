@@ -52,6 +52,41 @@ namespace CompanyTaskProjectManagement.Services
             return _taskRepository.GetByStatus(durum);
         }
 
+        /// <summary>
+        /// Belirli bir kullanıcıya atanmış bekleyen görevleri getirir (Filtreleme)
+        /// </summary>
+        public IEnumerable<Task> GetPendingTasksByUser(int kullaniciId)
+        {
+            return _taskRepository.GetByUserId(kullaniciId)
+                .Where(t => t.Durum == TaskStatus.Beklemede);
+        }
+
+        /// <summary>
+        /// Sadece bekleyen görevleri getirir (Filtreleme)
+        /// </summary>
+        public IEnumerable<Task> GetPendingTasks()
+        {
+            return _taskRepository.GetByStatus(TaskStatus.Beklemede);
+        }
+
+        /// <summary>
+        /// Son tarihi geçmiş görevleri getirir
+        /// </summary>
+        public IEnumerable<Task> GetOverdueTasks()
+        {
+            return _taskRepository.GetAll()
+                .Where(t => t.IsOverdue());
+        }
+
+        /// <summary>
+        /// Belirli önceliğe göre görevleri getirir
+        /// </summary>
+        public IEnumerable<Task> GetTasksByPriority(TaskPriority oncelik)
+        {
+            return _taskRepository.GetAll()
+                .Where(t => t.Oncelik == oncelik);
+        }
+
         public void AddTask(Task task)
         {
             if (task == null)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -30,6 +31,9 @@ namespace CompanyTaskProjectManagement.Forms
         private ComboBox cmbProje;
         private ComboBox cmbKullanici;
         private ComboBox cmbDurum;
+        private ComboBox cmbOncelik;
+        private DateTimePicker dtpSonTarih;
+        private CheckBox chkSonTarihVarMi;
         private Button btnKaydet;
         private Button btnIptal;
         private Label lblBaslik;
@@ -37,6 +41,8 @@ namespace CompanyTaskProjectManagement.Forms
         private Label lblProje;
         private Label lblKullanici;
         private Label lblDurum;
+        private Label lblOncelik;
+        private Label lblSonTarih;
 
         private Task _selectedTask;
 
@@ -74,6 +80,11 @@ namespace CompanyTaskProjectManagement.Forms
             this.cmbKullanici = new ComboBox();
             this.lblDurum = new Label();
             this.cmbDurum = new ComboBox();
+            this.lblOncelik = new Label();
+            this.cmbOncelik = new ComboBox();
+            this.chkSonTarihVarMi = new CheckBox();
+            this.lblSonTarih = new Label();
+            this.dtpSonTarih = new DateTimePicker();
             this.btnKaydet = new Button();
             this.btnIptal = new Button();
 
@@ -102,7 +113,14 @@ namespace CompanyTaskProjectManagement.Forms
             this.cmbFiltre.DropDownStyle = ComboBoxStyle.DropDownList;
             this.cmbFiltre.Location = new Point(60, 12);
             this.cmbFiltre.Size = new Size(200, 23);
-            this.cmbFiltre.Items.AddRange(new object[] { "Tümü", "Beklemede", "Devam Ediyor", "Tamamlandı" });
+            this.cmbFiltre.Items.AddRange(new object[] { 
+                "Tümü", 
+                "Beklemede", 
+                "Devam Ediyor", 
+                "Tamamlandı",
+                "Sadece Bana Atananlar",
+                "Son Tarihi Geçenler"
+            });
             this.cmbFiltre.SelectedIndex = 0;
             this.cmbFiltre.SelectedIndexChanged += CmbFiltre_SelectedIndexChanged;
 
@@ -142,7 +160,7 @@ namespace CompanyTaskProjectManagement.Forms
             // grpDetay
             this.grpDetay.BackColor = Color.White;
             this.grpDetay.Location = new Point(630, 12);
-            this.grpDetay.Size = new Size(350, 390);
+            this.grpDetay.Size = new Size(350, 480);
             this.grpDetay.Text = "Görev Detayları";
             this.grpDetay.Visible = false;
 
@@ -206,17 +224,49 @@ namespace CompanyTaskProjectManagement.Forms
             this.cmbDurum.Items.AddRange(new object[] { "Beklemede", "Devam Ediyor", "Tamamlandı" });
             this.grpDetay.Controls.Add(this.cmbDurum);
 
+            // lblOncelik
+            this.lblOncelik.AutoSize = true;
+            this.lblOncelik.Location = new Point(15, 345);
+            this.lblOncelik.Text = "Öncelik:";
+            this.grpDetay.Controls.Add(this.lblOncelik);
+
+            // cmbOncelik
+            this.cmbOncelik.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cmbOncelik.Location = new Point(15, 365);
+            this.cmbOncelik.Size = new Size(320, 23);
+            this.cmbOncelik.Items.AddRange(new object[] { "Düşük", "Orta", "Yüksek" });
+            this.grpDetay.Controls.Add(this.cmbOncelik);
+
+            // chkSonTarihVarMi
+            this.chkSonTarihVarMi.AutoSize = true;
+            this.chkSonTarihVarMi.Location = new Point(15, 400);
+            this.chkSonTarihVarMi.Text = "Son tarih belirlensin";
+            this.chkSonTarihVarMi.CheckedChanged += (s, e) => dtpSonTarih.Enabled = chkSonTarihVarMi.Checked;
+            this.grpDetay.Controls.Add(this.chkSonTarihVarMi);
+
+            // lblSonTarih
+            this.lblSonTarih.AutoSize = true;
+            this.lblSonTarih.Location = new Point(15, 420);
+            this.lblSonTarih.Text = "Son Tarih:";
+            this.grpDetay.Controls.Add(this.lblSonTarih);
+
+            // dtpSonTarih
+            this.dtpSonTarih.Location = new Point(15, 440);
+            this.dtpSonTarih.Size = new Size(320, 23);
+            this.dtpSonTarih.Enabled = false;
+            this.grpDetay.Controls.Add(this.dtpSonTarih);
+
             // btnKaydet
             this.btnKaydet.BackColor = Color.FromArgb(0, 120, 215);
             this.btnKaydet.ForeColor = Color.White;
-            this.btnKaydet.Location = new Point(15, 345);
+            this.btnKaydet.Location = new Point(15, 475);
             this.btnKaydet.Size = new Size(150, 35);
             this.btnKaydet.Text = "Kaydet";
             this.btnKaydet.Click += BtnKaydet_Click;
             this.grpDetay.Controls.Add(this.btnKaydet);
 
             // btnIptal
-            this.btnIptal.Location = new Point(185, 345);
+            this.btnIptal.Location = new Point(185, 475);
             this.btnIptal.Size = new Size(150, 35);
             this.btnIptal.Text = "İptal";
             this.btnIptal.Click += BtnIptal_Click;
@@ -226,7 +276,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
             this.BackColor = Color.FromArgb(245, 247, 250);
-            this.ClientSize = new Size(1000, 420);
+            this.ClientSize = new Size(1000, 510);
             this.Controls.Add(this.lblFiltre);
             this.Controls.Add(this.cmbFiltre);
             this.Controls.Add(this.dgvTasks);
@@ -273,18 +323,35 @@ namespace CompanyTaskProjectManagement.Forms
                     ? _taskService.GetTasksByStatus(durum.Value).ToList()
                     : _taskService.GetAllTasks().ToList();
 
+                // Rol bazlı filtreleme: Çalışanlar sadece kendilerine atanmış görevleri görebilir
+                if (_currentUser.Rol == UserRole.Calisan)
+                {
+                    tasks = tasks.Where(t => t.AtananKullaniciId == _currentUser.Id).ToList();
+                }
+
                 dgvTasks.DataSource = tasks;
 
                 if (dgvTasks.Columns.Count > 0)
                 {
                     dgvTasks.Columns["Id"].HeaderText = "ID";
+                    dgvTasks.Columns["Id"].Width = 40;
                     dgvTasks.Columns["Baslik"].HeaderText = "Başlık";
+                    dgvTasks.Columns["Baslik"].Width = 150;
                     dgvTasks.Columns["Aciklama"].HeaderText = "Açıklama";
+                    dgvTasks.Columns["Aciklama"].Width = 150;
                     dgvTasks.Columns["Durum"].HeaderText = "Durum";
-                    dgvTasks.Columns["ProjeId"].HeaderText = "Proje ID";
-                    dgvTasks.Columns["AtananKullaniciId"].HeaderText = "Kullanıcı ID";
+                    dgvTasks.Columns["Durum"].Width = 80;
+                    dgvTasks.Columns["Oncelik"].HeaderText = "Öncelik";
+                    dgvTasks.Columns["Oncelik"].Width = 70;
+                    dgvTasks.Columns["SonTarih"].HeaderText = "Son Tarih";
+                    dgvTasks.Columns["SonTarih"].Width = 90;
+                    dgvTasks.Columns["ProjeId"].Visible = false;
+                    dgvTasks.Columns["AtananKullaniciId"].Visible = false;
                     dgvTasks.Columns["OlusturmaTarihi"].Visible = false;
                 }
+
+                // Gecikmiş görevleri renklendir
+                HighlightOverdueTasks();
             }
             catch (Exception ex)
             {
@@ -293,25 +360,91 @@ namespace CompanyTaskProjectManagement.Forms
             }
         }
 
+        /// <summary>
+        /// Son tarihi geçmiş görevleri vurgula
+        /// </summary>
+        private void HighlightOverdueTasks()
+        {
+            foreach (DataGridViewRow row in dgvTasks.Rows)
+            {
+                var task = (Task)row.DataBoundItem;
+                if (task.IsOverdue())
+                {
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 230, 230);
+                    row.DefaultCellStyle.ForeColor = Color.DarkRed;
+                }
+                else if (task.Oncelik == TaskPriority.Yuksek)
+                {
+                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 245, 230);
+                }
+            }
+        }
+
         private void CmbFiltre_SelectedIndexChanged(object sender, EventArgs e)
         {
-            switch (cmbFiltre.SelectedIndex)
+            try
             {
-                case 0: LoadTasks(); break;
-                case 1: LoadTasks(TaskStatus.Beklemede); break;
-                case 2: LoadTasks(TaskStatus.DevamEdiyor); break;
-                case 3: LoadTasks(TaskStatus.Tamamlandi); break;
+                var tasks = new List<Task>();
+
+                switch (cmbFiltre.SelectedIndex)
+                {
+                    case 0: // Tümü
+                        tasks = _taskService.GetAllTasks().ToList();
+                        break;
+                    case 1: // Beklemede
+                        tasks = _taskService.GetTasksByStatus(TaskStatus.Beklemede).ToList();
+                        break;
+                    case 2: // Devam Ediyor
+                        tasks = _taskService.GetTasksByStatus(TaskStatus.DevamEdiyor).ToList();
+                        break;
+                    case 3: // Tamamlandı
+                        tasks = _taskService.GetTasksByStatus(TaskStatus.Tamamlandi).ToList();
+                        break;
+                    case 4: // Sadece Bana Atananlar
+                        tasks = _taskService.GetTasksByUser(_currentUser.Id).ToList();
+                        break;
+                    case 5: // Son Tarihi Geçenler
+                        tasks = _taskService.GetOverdueTasks().ToList();
+                        break;
+                }
+
+                // Rol bazlı filtreleme: Çalışanlar sadece kendilerine atanmış görevleri görebilir
+                if (_currentUser.Rol == UserRole.Calisan)
+                {
+                    tasks = tasks.Where(t => t.AtananKullaniciId == _currentUser.Id).ToList();
+                }
+
+                dgvTasks.DataSource = tasks;
+                HighlightOverdueTasks();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Filtreleme hatası: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnYeni_Click(object sender, EventArgs e)
         {
+            // Rol kontrolü: Çalışanlar proje seçemeyecek, otomatik ilk proje atanacak
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                cmbProje.Enabled = false;
+            }
+            else
+            {
+                cmbProje.Enabled = true;
+            }
+
             _selectedTask = null;
             txtBaslik.Clear();
             txtAciklama.Clear();
             cmbProje.SelectedIndex = 0;
             cmbKullanici.SelectedIndex = 0;
             cmbDurum.SelectedIndex = 0;
+            cmbOncelik.SelectedIndex = 1; // Orta
+            chkSonTarihVarMi.Checked = false;
+            dtpSonTarih.Value = DateTime.Now.AddDays(7);
             grpDetay.Visible = true;
         }
 
@@ -325,11 +458,34 @@ namespace CompanyTaskProjectManagement.Forms
             }
 
             _selectedTask = (Task)dgvTasks.SelectedRows[0].DataBoundItem;
+
+            // Rol kontrolü: Çalışanlar proje değiştiremez
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                cmbProje.Enabled = false;
+            }
+            else
+            {
+                cmbProje.Enabled = true;
+            }
+
             txtBaslik.Text = _selectedTask.Baslik;
             txtAciklama.Text = _selectedTask.Aciklama;
             cmbProje.SelectedValue = _selectedTask.ProjeId;
             cmbKullanici.SelectedValue = _selectedTask.AtananKullaniciId ?? 0;
             cmbDurum.SelectedIndex = (int)_selectedTask.Durum;
+            cmbOncelik.SelectedIndex = (int)_selectedTask.Oncelik;
+            
+            if (_selectedTask.SonTarih.HasValue)
+            {
+                chkSonTarihVarMi.Checked = true;
+                dtpSonTarih.Value = _selectedTask.SonTarih.Value;
+            }
+            else
+            {
+                chkSonTarihVarMi.Checked = false;
+            }
+
             grpDetay.Visible = true;
         }
 
@@ -384,6 +540,8 @@ namespace CompanyTaskProjectManagement.Forms
                 int? kullaniciId = (int)cmbKullanici.SelectedValue;
                 if (kullaniciId == 0) kullaniciId = null;
 
+                DateTime? sonTarih = chkSonTarihVarMi.Checked ? dtpSonTarih.Value : null;
+
                 if (_selectedTask == null)
                 {
                     // Yeni görev
@@ -393,7 +551,9 @@ namespace CompanyTaskProjectManagement.Forms
                         Aciklama = txtAciklama.Text.Trim(),
                         ProjeId = projeId,
                         AtananKullaniciId = kullaniciId,
-                        Durum = (TaskStatus)cmbDurum.SelectedIndex
+                        Durum = (TaskStatus)cmbDurum.SelectedIndex,
+                        Oncelik = (TaskPriority)cmbOncelik.SelectedIndex,
+                        SonTarih = sonTarih
                     };
                     _taskService.AddTask(newTask);
                     MessageBox.Show("Görev başarıyla eklendi!", "Başarılı",
@@ -407,6 +567,8 @@ namespace CompanyTaskProjectManagement.Forms
                     _selectedTask.ProjeId = projeId;
                     _selectedTask.AtananKullaniciId = kullaniciId;
                     _selectedTask.Durum = (TaskStatus)cmbDurum.SelectedIndex;
+                    _selectedTask.Oncelik = (TaskPriority)cmbOncelik.SelectedIndex;
+                    _selectedTask.SonTarih = sonTarih;
 
                     _taskService.UpdateTask(_selectedTask);
                     MessageBox.Show("Görev başarıyla güncellendi!", "Başarılı",

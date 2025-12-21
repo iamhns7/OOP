@@ -11,6 +11,8 @@ namespace CompanyTaskProjectManagement.Entities
         private string _baslik;
         private string _aciklama;
         private TaskStatus _durum;
+        private TaskPriority _oncelik;
+        private DateTime? _sonTarih;
         private int? _atananKullaniciId;
         private int _projeId;
 
@@ -33,6 +35,18 @@ namespace CompanyTaskProjectManagement.Entities
             set => _durum = value; 
         }
 
+        public TaskPriority Oncelik 
+        { 
+            get => _oncelik; 
+            set => _oncelik = value; 
+        }
+
+        public DateTime? SonTarih 
+        { 
+            get => _sonTarih; 
+            set => _sonTarih = value; 
+        }
+
         public int? AtananKullaniciId 
         { 
             get => _atananKullaniciId; 
@@ -50,6 +64,7 @@ namespace CompanyTaskProjectManagement.Entities
             _baslik = string.Empty;
             _aciklama = string.Empty;
             _durum = TaskStatus.Beklemede;
+            _oncelik = TaskPriority.Orta;
         }
 
         public Task(string baslik, string aciklama, int projeId, int? atananKullaniciId = null) : this()
@@ -58,6 +73,16 @@ namespace CompanyTaskProjectManagement.Entities
             _aciklama = aciklama;
             _projeId = projeId;
             _atananKullaniciId = atananKullaniciId;
+        }
+
+        /// <summary>
+        /// Son tarihi geçmiş mi kontrol eder
+        /// </summary>
+        public bool IsOverdue()
+        {
+            return SonTarih.HasValue && 
+                   SonTarih.Value < DateTime.Now && 
+                   Durum != TaskStatus.Tamamlandi;
         }
 
         public override string ToString()
@@ -74,5 +99,15 @@ namespace CompanyTaskProjectManagement.Entities
         Beklemede,
         DevamEdiyor,
         Tamamlandi
+    }
+
+    /// <summary>
+    /// Görev öncelikleri
+    /// </summary>
+    public enum TaskPriority
+    {
+        Dusuk,
+        Orta,
+        Yuksek
     }
 }

@@ -13,6 +13,7 @@ namespace CompanyTaskProjectManagement.Forms
     public partial class ProjectForm : Form
     {
         private readonly ProjectService _projectService;
+        private readonly User _currentUser;
         private DataGridView dgvProjects;
         private Button btnYeni;
         private Button btnDuzenle;
@@ -33,11 +34,32 @@ namespace CompanyTaskProjectManagement.Forms
 
         private Project _selectedProject;
 
-        public ProjectForm(ProjectService projectService)
+        public ProjectForm(ProjectService projectService, User currentUser)
         {
             _projectService = projectService ?? throw new ArgumentNullException(nameof(projectService));
+            _currentUser = currentUser ?? throw new ArgumentNullException(nameof(currentUser));
             InitializeComponent();
+            ConfigureRoleBasedUI();
             LoadProjects();
+        }
+
+        /// <summary>
+        /// Rol bazlı arayüz konfigürasyonu
+        /// </summary>
+        private void ConfigureRoleBasedUI()
+        {
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                // Çalışanlar için CRUD işlemleri kısıtlı
+                btnYeni.Enabled = false;
+                btnDuzenle.Enabled = false;
+                btnSil.Enabled = false;
+                
+                this.Text = "Proje Görüntüleme (Salt Okunur)";
+                
+                MessageBox.Show("Çalışanlar proje ekleyemez, düzenleyemez veya silemez.\nSadece görüntüleme yetkisine sahipsiniz.", 
+                    "Bilgilendirme", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void InitializeComponent()
