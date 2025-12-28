@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using CompanyTaskProjectManagement.Entities;
 using CompanyTaskProjectManagement.Forms;
 using CompanyTaskProjectManagement.Repositories;
+using CompanyTaskProjectManagement.Repositories.Sql;
 using CompanyTaskProjectManagement.Services;
 
 namespace CompanyTaskProjectManagement
@@ -19,10 +20,10 @@ namespace CompanyTaskProjectManagement
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            // Repository'leri oluştur (In-Memory)
-            var userRepository = new UserRepository();
-            var projectRepository = new ProjectRepository();
-            var taskRepository = new TaskRepository();
+            // Repository'leri oluştur - TÜM VERİLER SQL SERVER'DA
+            var userRepository = new UserSqlRepository();
+            var projectRepository = new ProjectSqlRepository();
+            var taskRepository = new TaskSqlRepository();
 
             // Service'leri oluştur (Dependency Injection)
             var userService = new UserService(userRepository);
