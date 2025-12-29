@@ -198,7 +198,7 @@ namespace CompanyTaskProjectManagement.Forms
             // grpDetay
             this.grpDetay.BackColor = Color.White;
             this.grpDetay.Location = new Point(630, 12);
-            this.grpDetay.Size = new Size(350, 480);
+            this.grpDetay.Size = new Size(350, 520);
             this.grpDetay.Text = "Görev Detayları";
             this.grpDetay.Visible = false;
 
@@ -314,7 +314,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.AutoScaleDimensions = new SizeF(7F, 15F);
             this.AutoScaleMode = AutoScaleMode.Font;
             this.BackColor = Color.FromArgb(245, 247, 250);
-            this.ClientSize = new Size(1000, 510);
+            this.ClientSize = new Size(1000, 550);
             this.Controls.Add(this.lblFiltre);
             this.Controls.Add(this.cmbFiltre);
             this.Controls.Add(this.lblSiralama);

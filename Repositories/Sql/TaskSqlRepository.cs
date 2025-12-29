@@ -36,7 +36,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                     
                     string query = @"SELECT Id, Title as Baslik, Description as Aciklama, Status as Durum, 
                                     Priority as Oncelik, DueDate as SonTarih, CreatedBy as AtananKullaniciId, 
-                                    CategoryId as ProjeId 
+                                    ProjectId as ProjeId 
                                     FROM Tasks";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -81,7 +81,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, CategoryId 
+                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, ProjectId 
                                     FROM Tasks WHERE Id = @id";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -129,9 +129,9 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = @"INSERT INTO Tasks (Title, Description, CategoryId, Priority, Status, CreatedBy, DueDate) 
+                    string query = @"INSERT INTO Tasks (Title, Description, ProjectId, Priority, Status, CreatedBy, DueDate) 
                                     VALUES (@baslik, @aciklama, @projeId, @oncelik, @durum, @atananKullaniciId, @sonTarih);
-                                    SELECT CAST(SCOPE_IDENTITY() as int);";
+                                    SELECT CAST(SCOPE_IDENTITY() as int)";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -170,7 +170,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                     string query = @"UPDATE Tasks 
                                     SET Title = @baslik, 
                                         Description = @aciklama, 
-                                        CategoryId = @projeId, 
+                                        ProjectId = @projeId, 
                                         Priority = @oncelik, 
                                         Status = @durum, 
                                         CreatedBy = @atananKullaniciId, 
@@ -231,8 +231,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, CategoryId 
-                                    FROM Tasks WHERE CategoryId = @projeId";
+                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, ProjectId 
+                                    FROM Tasks WHERE ProjectId = @projeId";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -278,7 +278,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, CategoryId 
+                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, ProjectId 
                                     FROM Tasks WHERE CreatedBy = @kullaniciId";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -325,7 +325,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, CategoryId 
+                    string query = @"SELECT Id, Title, Description, Status, Priority, DueDate, CreatedBy, ProjectId 
                                     FROM Tasks WHERE Status = @durum";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
