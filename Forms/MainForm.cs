@@ -523,8 +523,17 @@ namespace CompanyTaskProjectManagement.Forms
 
         private void MenuKullanicilar_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Kullanıcı yönetimi formu henüz eklenmedi.", "Bilgi",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Rol kontrolü: Sadece admin kullanıcı yönetimi yapabilir
+            if (_currentUser.Rol == UserRole.Calisan)
+            {
+                MessageBox.Show("Kullanıcı yönetimi sadece yöneticiler için erişilebilir!", "Yetki Hatası",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var userForm = new UserForm(_userService, _currentUser);
+            userForm.ShowDialog();
+            LoadStatistics();
         }
 
         private void MenuCikis_Click(object sender, EventArgs e)
