@@ -21,6 +21,7 @@ namespace CompanyTaskProjectManagement.Forms
         private DataGridView dgvTasks;
         private Button btnYeni;
         private Button btnDuzenle;
+        private Button btnDetaylar;
         private Button btnSil;
         private Button btnKapat;
         private ComboBox cmbFiltre;
@@ -43,6 +44,7 @@ namespace CompanyTaskProjectManagement.Forms
         private Label lblBaslik;
         private Label lblAciklama;
         private Label lblProje;
+        private Label lblProjeGorevSayisi;
         private Label lblKullanici;
         private Label lblDurum;
         private Label lblOncelik;
@@ -69,6 +71,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.dgvTasks = new DataGridView();
             this.btnYeni = new Button();
             this.btnDuzenle = new Button();
+            this.btnDetaylar = new Button();
             this.btnSil = new Button();
             this.btnKapat = new Button();
             this.lblFiltre = new Label();
@@ -83,6 +86,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.lblAciklama = new Label();
             this.txtAciklama = new TextBox();
             this.lblProje = new Label();
+            this.lblProjeGorevSayisi = new Label();
             this.cmbProje = new ComboBox();
             this.lblKullanici = new Label();
             this.cmbKullanici = new ComboBox();
@@ -180,11 +184,20 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnDuzenle.Text = "Düzenle";
             this.btnDuzenle.Click += BtnDuzenle_Click;
 
+            // btnDetaylar
+            this.btnDetaylar.BackColor = Color.FromArgb(108, 117, 125);
+            this.btnDetaylar.ForeColor = Color.White;
+            this.btnDetaylar.FlatStyle = FlatStyle.Flat;
+            this.btnDetaylar.Location = new Point(228, 370);
+            this.btnDetaylar.Size = new Size(100, 30);
+            this.btnDetaylar.Text = "Detaylar";
+            this.btnDetaylar.Click += BtnDetaylar_Click;
+
             // btnSil
             this.btnSil.BackColor = Color.FromArgb(196, 43, 28);
             this.btnSil.ForeColor = Color.White;
             this.btnSil.FlatStyle = FlatStyle.Flat;
-            this.btnSil.Location = new Point(228, 370);
+            this.btnSil.Location = new Point(336, 370);
             this.btnSil.Size = new Size(100, 30);
             this.btnSil.Text = "Sil";
             this.btnSil.Click += BtnSil_Click;
@@ -231,10 +244,19 @@ namespace CompanyTaskProjectManagement.Forms
             this.lblProje.Text = "Proje:";
             this.grpDetay.Controls.Add(this.lblProje);
 
+            // lblProjeGorevSayisi
+            this.lblProjeGorevSayisi.AutoSize = true;
+            this.lblProjeGorevSayisi.Location = new Point(270, 180);
+            this.lblProjeGorevSayisi.Text = "";
+            this.lblProjeGorevSayisi.ForeColor = Color.FromArgb(100, 100, 100);
+            this.lblProjeGorevSayisi.Font = new Font("Segoe UI", 8.5F);
+            this.grpDetay.Controls.Add(this.lblProjeGorevSayisi);
+
             // cmbProje
             this.cmbProje.DropDownStyle = ComboBoxStyle.DropDownList;
             this.cmbProje.Location = new Point(15, 200);
             this.cmbProje.Size = new Size(320, 23);
+            this.cmbProje.SelectedIndexChanged += CmbProje_SelectedIndexChanged;
             this.grpDetay.Controls.Add(this.cmbProje);
 
             // lblKullanici
@@ -531,6 +553,62 @@ namespace CompanyTaskProjectManagement.Forms
             grpDetay.Visible = true;
         }
 
+        private void BtnDetaylar_Click(object sender, EventArgs e)
+        {
+            if (dgvTasks.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Lütfen detaylarını görmek için bir görev seçin!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var task = (Task)dgvTasks.SelectedRows[0].DataBoundItem;
+            
+            // Proje bilgisini al
+            var project = _projectService.GetById(task.ProjeId);
+            string projeAdi = project != null ? project.ProjeAdi : "Bilinmeyen Proje";
+            
+            // Kullanıcı bilgisini al
+            var user = task.AtananKullaniciId.HasValue ? _userService.GetById(task.AtananKullaniciId.Value) : null;
+            string atananKullanici = user != null ? user.AdSoyad : "Atanmamış";
+            
+            // Durum bilgisi
+            string durum = task.Durum == TaskStatus.Beklemede ? "Beklemede 🔴" :
+                          task.Durum == TaskStatus.DevamEdiyor ? "Devam Ediyor 🟠" : "Tamamlandı 🟢";
+            
+            // Öncelik bilgisi
+            string oncelik = task.Oncelik == TaskPriority.Dusuk ? "Düşük" :
+                            task.Oncelik == TaskPriority.Orta ? "Orta" : "Yüksek 🔥";
+            
+            // Son tarih bilgisi
+            string sonTarih = task.SonTarih.HasValue 
+                ? task.SonTarih.Value.ToString("dd.MM.yyyy") 
+                : "Belirlenmemiş";
+            
+            // Gecikme durumu
+            string gecikme = task.IsOverdue() ? "\n⚠️ GECİKMİŞ GÖREV!" : "";
+            
+            // Oluşturulma tarihi
+            string olusturma = task.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm");
+            
+            // Detay mesajı
+            string detayMesaji = $"📋 GÖREV DETAYLARI\n" +
+                                $"━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                                $"📌 Başlık: {task.Baslik}\n\n" +
+                                $"📝 Açıklama:\n{(string.IsNullOrWhiteSpace(task.Aciklama) ? "Açıklama yok" : task.Aciklama)}\n\n" +
+                                $"📁 Proje: {projeAdi}\n\n" +
+                                $"👤 Atanan Kullanıcı: {atananKullanici}\n\n" +
+                                $"🔖 Durum: {durum}\n\n" +
+                                $"⚡ Öncelik: {oncelik}\n\n" +
+                                $"📅 Son Tarih: {sonTarih}\n\n" +
+                                $"🕐 Oluşturulma: {olusturma}\n\n" +
+                                $"🆔 Görev ID: {task.Id}" +
+                                gecikme;
+            
+            MessageBox.Show(detayMesaji, "Görev Detayları", 
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         private void BtnSil_Click(object sender, EventArgs e)
         {
             if (dgvTasks.SelectedRows.Count == 0)
@@ -707,6 +785,22 @@ namespace CompanyTaskProjectManagement.Forms
             {
                 MessageBox.Show($"Sıralama hatası: {ex.Message}", "Hata",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Proje seçildiğinde o projedeki görev sayısını göster
+        /// </summary>
+        private void CmbProje_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbProje.SelectedValue != null && cmbProje.SelectedValue is int projeId && projeId > 0)
+            {
+                var projedekiGorevler = _taskService.GetTasksByProject(projeId).ToList();
+                lblProjeGorevSayisi.Text = $"| {projedekiGorevler.Count} görev";
+            }
+            else
+            {
+                lblProjeGorevSayisi.Text = "";
             }
         }
     }

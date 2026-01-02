@@ -38,6 +38,7 @@ namespace CompanyTaskProjectManagement.Forms
         private Button btnTumGorevler;
         private GroupBox grpSonGorevler;
         private ListBox lstSonGorevler;
+        private Button btnGorevDetay;
         private GroupBox grpKullaniciPerformans;
         private Label lblKullaniciPerformans;
         private ProgressBar prgKullaniciBasari;
@@ -97,6 +98,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnTumGorevler = new Button();
             this.grpSonGorevler = new GroupBox();
             this.lstSonGorevler = new ListBox();
+            this.btnGorevDetay = new Button();
             this.grpKullaniciPerformans = new GroupBox();
             this.lblKullaniciPerformans = new Label();
             this.prgKullaniciBasari = new ProgressBar();
@@ -288,7 +290,22 @@ namespace CompanyTaskProjectManagement.Forms
             this.lstSonGorevler.ForeColor = Color.FromArgb(60, 60, 60);
             this.lstSonGorevler.Location = new Point(15, 30);
             this.lstSonGorevler.Name = "lstSonGorevler";
-            this.lstSonGorevler.Size = new Size(350, 185);
+            this.lstSonGorevler.Size = new Size(350, 145);
+            this.lstSonGorevler.Cursor = Cursors.Hand;
+            this.lstSonGorevler.DoubleClick += LstSonGorevler_DoubleClick;
+
+            // btnGorevDetay
+            this.btnGorevDetay.BackColor = Color.FromArgb(0, 120, 215);
+            this.btnGorevDetay.FlatStyle = FlatStyle.Flat;
+            this.btnGorevDetay.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.btnGorevDetay.ForeColor = Color.White;
+            this.btnGorevDetay.Location = new Point(15, 185);
+            this.btnGorevDetay.Name = "btnGorevDetay";
+            this.btnGorevDetay.Size = new Size(350, 35);
+            this.btnGorevDetay.Text = "📋 Detayları Görüntüle";
+            this.btnGorevDetay.Cursor = Cursors.Hand;
+            this.btnGorevDetay.Click += BtnGorevDetay_Click;
+            this.grpSonGorevler.Controls.Add(this.btnGorevDetay);
 
             // grpKullaniciPerformans
             this.grpKullaniciPerformans.BackColor = Color.White;
@@ -344,7 +361,6 @@ namespace CompanyTaskProjectManagement.Forms
                 var allTasks = _taskService.GetAllTasks();
                 var stats = _taskService.GetTaskStatistics();
 
-                int toplamProje = 0;
                 int toplamGorev = 0;
 
                 // Rol bazlı veri gösterimi
@@ -354,8 +370,11 @@ namespace CompanyTaskProjectManagement.Forms
                     var myTasks = allTasks.Where(t => t.AtananKullaniciId == _currentUser.Id).ToList();
                     toplamGorev = myTasks.Count;
                     
+                    // Çalışanın üzerinde çalıştığı proje sayısı
+                    var myProjects = myTasks.Select(t => t.ProjeId).Distinct().Count();
+                    
                     // Sadece görev istatistikleri
-                    lblToplamProje.Text = "📁 Toplam Proje: -";
+                    lblToplamProje.Text = $"📁 Üzerinde Çalıştığım Proje: {myProjects}";
                     lblToplamGorev.Text = $"📋 Bana Atanan Görev: {toplamGorev}";
                     lblBekleyenGorev.Text = $"🔴 Bekleyen: {myTasks.Count(t => t.Durum == TaskStatus.Beklemede)}";
                     lblDevamEdenGorev.Text = $"🟠 Devam Eden: {myTasks.Count(t => t.Durum == TaskStatus.DevamEdiyor)}";
@@ -364,10 +383,12 @@ namespace CompanyTaskProjectManagement.Forms
                 else
                 {
                     // Admin tüm verileri görür
-                    foreach (var p in allProjects) toplamProje++;
                     foreach (var t in allTasks) toplamGorev++;
+                    
+                    // Sadece görev içeren projeleri say
+                    var activeProjects = allProjects.Where(p => allTasks.Any(t => t.ProjeId == p.Id)).Count();
 
-                    lblToplamProje.Text = $"📁 Toplam Proje: {toplamProje}";
+                    lblToplamProje.Text = $"📁 Üzerinde Çalışılan Proje: {activeProjects}";
                     lblToplamGorev.Text = $"📋 Toplam Görev: {toplamGorev}";
                     lblBekleyenGorev.Text = $"🔴 Bekleyen: {stats[TaskStatus.Beklemede]}";
                     lblDevamEdenGorev.Text = $"🟠 Devam Eden: {stats[TaskStatus.DevamEdiyor]}";
@@ -471,20 +492,26 @@ namespace CompanyTaskProjectManagement.Forms
             {
                 lstSonGorevler.Items.Clear();
                 var tasks = _taskService.GetAllTasks().ToList();
-                var projects = _projectService.GetAllProjects().ToList();
+                var users = _userService.GetAllUsers().ToList();
 
                 // Son 5 görevi al (ID'ye göre azalan sırada)
                 int count = 0;
                 for (int i = tasks.Count - 1; i >= 0 && count < 5; i--)
                 {
                     var task = tasks[i];
-                    var project = projects.FirstOrDefault(p => p.Id == task.ProjeId);
-                    string projectName = project != null ? project.Ad : "Bilinmeyen Proje";
+                    var user = users.FirstOrDefault(u => u.Id == task.AtananKullaniciId);
+                    
+                    string userName = user != null ? user.AdSoyad : "Atanmamış";
                     
                     string durum = task.Durum == TaskStatus.Beklemede ? "🔴" :
                                    task.Durum == TaskStatus.DevamEdiyor ? "🟠" : "🟢";
                     
-                    lstSonGorevler.Items.Add($"{durum} [{projectName}] {task.Baslik} - {task.Durum}");
+                    // Task objesini tag olarak sakla
+                    lstSonGorevler.Items.Add(new TaskListItem
+                    {
+                        Task = task,
+                        DisplayText = $"{durum} {task.Baslik} - {userName}"
+                    });
                     count++;
                 }
 
@@ -572,6 +599,98 @@ namespace CompanyTaskProjectManagement.Forms
             var taskForm = new TaskForm(_taskService, _projectService, _userService, _currentUser);
             taskForm.ShowDialog();
             LoadStatistics();
+        }
+
+        /// <summary>
+        /// Son eklenen görevler listesinde çift tıklama ile detay göster
+        /// </summary>
+        private void LstSonGorevler_DoubleClick(object sender, EventArgs e)
+        {
+            ShowTaskDetails();
+        }
+
+        /// <summary>
+        /// Detayları Görüntüle butonuna basıldığında görev detayını göster
+        /// </summary>
+        private void BtnGorevDetay_Click(object sender, EventArgs e)
+        {
+            ShowTaskDetails();
+        }
+
+        /// <summary>
+        /// Seçili görevin detaylarını göster
+        /// </summary>
+        private void ShowTaskDetails()
+        {
+            if (lstSonGorevler.SelectedItem == null)
+            {
+                MessageBox.Show("Lütfen detaylarını görmek için bir görev seçin!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (lstSonGorevler.SelectedItem is TaskListItem taskItem)
+            {
+                var task = taskItem.Task;
+                
+                // Proje bilgisini al
+                var project = _projectService.GetById(task.ProjeId);
+                string projeAdi = project != null ? project.ProjeAdi : "Bilinmeyen Proje";
+                
+                // Kullanıcı bilgisini al
+                var user = task.AtananKullaniciId.HasValue ? _userService.GetById(task.AtananKullaniciId.Value) : null;
+                string atananKullanici = user != null ? user.AdSoyad : "Atanmamış";
+                
+                // Durum bilgisi
+                string durum = task.Durum == TaskStatus.Beklemede ? "Beklemede 🔴" :
+                              task.Durum == TaskStatus.DevamEdiyor ? "Devam Ediyor 🟠" : "Tamamlandı 🟢";
+                
+                // Öncelik bilgisi
+                string oncelik = task.Oncelik == TaskPriority.Dusuk ? "Düşük" :
+                                task.Oncelik == TaskPriority.Orta ? "Orta" : "Yüksek 🔥";
+                
+                // Son tarih bilgisi
+                string sonTarih = task.SonTarih.HasValue 
+                    ? task.SonTarih.Value.ToString("dd.MM.yyyy") 
+                    : "Belirlenmemiş";
+                
+                // Gecikme durumu
+                string gecikme = task.IsOverdue() ? "\n⚠️ GECİKMİŞ GÖREV!" : "";
+                
+                // Oluşturulma tarihi
+                string olusturma = task.OlusturmaTarihi.ToString("dd.MM.yyyy HH:mm");
+                
+                // Detay mesajı
+                string detayMesaji = $"📋 GÖREV DETAYLARI\n" +
+                                    $"━━━━━━━━━━━━━━━━━━━━━━━\n\n" +
+                                    $"📌 Başlık: {task.Baslik}\n\n" +
+                                    $"📝 Açıklama:\n{(string.IsNullOrWhiteSpace(task.Aciklama) ? "Açıklama yok" : task.Aciklama)}\n\n" +
+                                    $"📁 Proje: {projeAdi}\n\n" +
+                                    $"👤 Atanan Kullanıcı: {atananKullanici}\n\n" +
+                                    $"🔖 Durum: {durum}\n\n" +
+                                    $"⚡ Öncelik: {oncelik}\n\n" +
+                                    $"📅 Son Tarih: {sonTarih}\n\n" +
+                                    $"🕐 Oluşturulma: {olusturma}\n\n" +
+                                    $"🆔 Görev ID: {task.Id}" +
+                                    gecikme;
+                
+                MessageBox.Show(detayMesaji, "Görev Detayları", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+    }
+
+    /// <summary>
+    /// ListBox için görev item wrapper class
+    /// </summary>
+    internal class TaskListItem
+    {
+        public Task Task { get; set; }
+        public string DisplayText { get; set; }
+
+        public override string ToString()
+        {
+            return DisplayText;
         }
     }
 }
