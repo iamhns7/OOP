@@ -568,7 +568,7 @@ namespace CompanyTaskProjectManagement.Forms
             if (MessageBox.Show("Çıkmak istediğinizden emin misiniz?", "Çıkış",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                Application.Exit();
+                this.Close(); // Login formuna dönmek için formu kapat
             }
         }
 

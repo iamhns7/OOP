@@ -81,7 +81,7 @@ namespace CompanyTaskProjectManagement
                     if (authenticatedUser != null)
                     {
                         Application.Run(new MainForm(authenticatedUser, userService, projectService, taskService));
-                        break;
+                        // MainForm kapandıktan sonra tekrar login ekranına dön (break kaldırıldı)
                     }
                 }
             }
