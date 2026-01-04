@@ -18,12 +18,14 @@ namespace CompanyTaskProjectManagement.Forms
         private Button btnYeni;
         private Button btnDuzenle;
         private Button btnSil;
+        private Button btnOnayla;
         private Button btnKapat;
         private GroupBox grpDetay;
         private TextBox txtAdSoyad;
         private TextBox txtKullaniciAdi;
         private TextBox txtSifre;
         private ComboBox cmbRol;
+        private CheckBox chkOnaylandi;
         private Button btnKaydet;
         private Button btnIptal;
         private Label lblAdSoyad;
@@ -67,6 +69,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnYeni = new Button();
             this.btnDuzenle = new Button();
             this.btnSil = new Button();
+            this.btnOnayla = new Button();
             this.btnKapat = new Button();
             this.grpDetay = new GroupBox();
             this.lblAdSoyad = new Label();
@@ -77,6 +80,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.txtSifre = new TextBox();
             this.lblRol = new Label();
             this.cmbRol = new ComboBox();
+            this.chkOnaylandi = new CheckBox();
             this.btnKaydet = new Button();
             this.btnIptal = new Button();
 
@@ -125,6 +129,17 @@ namespace CompanyTaskProjectManagement.Forms
             this.btnSil.Size = new Size(100, 30);
             this.btnSil.Text = "Sil";
             this.btnSil.Click += BtnSil_Click;
+
+            // btnOnayla
+            this.btnOnayla.BackColor = Color.FromArgb(40, 167, 69);
+            this.btnOnayla.ForeColor = Color.White;
+            this.btnOnayla.FlatStyle = FlatStyle.Flat;
+            this.btnOnayla.Location = new Point(336, 370);
+            this.btnOnayla.Name = "btnOnayla";
+            this.btnOnayla.Size = new Size(120, 30);
+            this.btnOnayla.Text = "✓ Onayla";
+            this.btnOnayla.Cursor = Cursors.Hand;
+            this.btnOnayla.Click += BtnOnayla_Click;
 
             // btnKapat
             this.btnKapat.Location = new Point(512, 370);
@@ -188,6 +203,16 @@ namespace CompanyTaskProjectManagement.Forms
             this.cmbRol.Items.AddRange(new object[] { UserRole.Admin, UserRole.Calisan });
             this.grpDetay.Controls.Add(this.cmbRol);
 
+            // chkOnaylandi
+            this.chkOnaylandi.AutoSize = true;
+            this.chkOnaylandi.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            this.chkOnaylandi.ForeColor = Color.FromArgb(40, 167, 69);
+            this.chkOnaylandi.Location = new Point(15, 255);
+            this.chkOnaylandi.Name = "chkOnaylandi";
+            this.chkOnaylandi.Text = "✓ Kullanıcı Onaylı";
+            this.chkOnaylandi.Size = new Size(160, 23);
+            this.grpDetay.Controls.Add(this.chkOnaylandi);
+
             // btnKaydet
             this.btnKaydet.BackColor = Color.FromArgb(0, 120, 215);
             this.btnKaydet.ForeColor = Color.White;
@@ -213,6 +238,7 @@ namespace CompanyTaskProjectManagement.Forms
             this.Controls.Add(this.btnYeni);
             this.Controls.Add(this.btnDuzenle);
             this.Controls.Add(this.btnSil);
+            this.Controls.Add(this.btnOnayla);
             this.Controls.Add(this.btnKapat);
             this.Controls.Add(this.grpDetay);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -241,10 +267,22 @@ namespace CompanyTaskProjectManagement.Forms
                     dgvUsers.Columns["KullaniciAdi"].HeaderText = "Kullanıcı Adı";
                     dgvUsers.Columns["Sifre"].HeaderText = "Şifre";
                     dgvUsers.Columns["Rol"].HeaderText = "Rol";
+                    dgvUsers.Columns["Onaylandi"].HeaderText = "Onaylı";
                     dgvUsers.Columns["OlusturmaTarihi"].Visible = false;
                     
                     // Şifre sütununu gizle (güvenlik için)
                     dgvUsers.Columns["Sifre"].Visible = false;
+                    
+                    // Onaylı olmayan kullanıcıları vurgula
+                    foreach (DataGridViewRow row in dgvUsers.Rows)
+                    {
+                        var user = (User)row.DataBoundItem;
+                        if (!user.Onaylandi)
+                        {
+                            row.DefaultCellStyle.BackColor = Color.FromArgb(255, 243, 205);
+                            row.DefaultCellStyle.ForeColor = Color.FromArgb(133, 100, 4);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -261,6 +299,7 @@ namespace CompanyTaskProjectManagement.Forms
             txtKullaniciAdi.Clear();
             txtSifre.Clear();
             cmbRol.SelectedIndex = 1; // Default: Calisan
+            chkOnaylandi.Checked = false;
             grpDetay.Visible = true;
         }
 
@@ -278,6 +317,7 @@ namespace CompanyTaskProjectManagement.Forms
             txtKullaniciAdi.Text = _selectedUser.KullaniciAdi;
             txtSifre.Text = _selectedUser.Sifre;
             cmbRol.SelectedItem = _selectedUser.Rol;
+            chkOnaylandi.Checked = _selectedUser.Onaylandi;
             
             grpDetay.Visible = true;
         }
@@ -359,7 +399,8 @@ namespace CompanyTaskProjectManagement.Forms
                         AdSoyad = txtAdSoyad.Text.Trim(),
                         KullaniciAdi = txtKullaniciAdi.Text.Trim(),
                         Sifre = txtSifre.Text.Trim(),
-                        Rol = (UserRole)cmbRol.SelectedItem
+                        Rol = (UserRole)cmbRol.SelectedItem,
+                        Onaylandi = chkOnaylandi.Checked
                     };
                     _userService.AddUser(newUser);
                     MessageBox.Show("Kullanıcı başarıyla eklendi!", "Başarılı",
@@ -372,6 +413,7 @@ namespace CompanyTaskProjectManagement.Forms
                     _selectedUser.KullaniciAdi = txtKullaniciAdi.Text.Trim();
                     _selectedUser.Sifre = txtSifre.Text.Trim();
                     _selectedUser.Rol = (UserRole)cmbRol.SelectedItem;
+                    _selectedUser.Onaylandi = chkOnaylandi.Checked;
                     
                     _userService.UpdateUser(_selectedUser);
                     MessageBox.Show("Kullanıcı başarıyla güncellendi!", "Başarılı",
@@ -391,6 +433,53 @@ namespace CompanyTaskProjectManagement.Forms
         private void BtnIptal_Click(object sender, EventArgs e)
         {
             grpDetay.Visible = false;
+        }
+
+        /// <summary>
+        /// Seçili kullanıcıyı onayla
+        /// </summary>
+        private void BtnOnayla_Click(object sender, EventArgs e)
+        {
+            if (dgvUsers.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Lütfen onaylamak için bir kullanıcı seçin!", "Uyarı",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var user = (User)dgvUsers.SelectedRows[0].DataBoundItem;
+            
+            // Zaten onaylı mı kontrol et
+            if (user.Onaylandi)
+            {
+                MessageBox.Show($"'{user.AdSoyad}' kullanıcısı zaten onaylı!", "Bilgi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (MessageBox.Show($"'{user.AdSoyad}' kullanıcısını onaylamak istediğinizden emin misiniz?\n\n" +
+                               $"Kullanıcı Adı: {user.KullaniciAdi}\n" +
+                               $"Rol: {user.Rol}\n\n" +
+                               "Onaylandıktan sonra kullanıcı sisteme giriş yapabilecek.",
+                "Kullanıcı Onayı", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                try
+                {
+                    user.Onaylandi = true;
+                    _userService.UpdateUser(user);
+                    
+                    MessageBox.Show($"'{user.AdSoyad}' kullanıcısı başarıyla onaylandı!\n\n" +
+                                   "Kullanıcı artık sisteme giriş yapabilir.", "Başarılı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                    LoadUsers();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Kullanıcı onaylanırken hata: {ex.Message}", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

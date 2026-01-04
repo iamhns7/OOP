@@ -34,31 +34,43 @@ BEGIN
         AdSoyad NVARCHAR(100) NOT NULL,
         KullaniciAdi NVARCHAR(50) NOT NULL UNIQUE,
         Sifre NVARCHAR(100) NOT NULL,
-        Rol INT NOT NULL
+        Rol INT NOT NULL,
+        Onaylandi BIT NOT NULL DEFAULT 0  -- Admin onayı (0=Onaysız, 1=Onaylı)
     );
     PRINT 'Users tablosu oluşturuldu.';
 END
 ELSE
 BEGIN
     PRINT 'Users tablosu zaten mevcut.';
+    
+    -- Mevcut tabloya Onaylandi kolonu ekle (eğer yoksa)
+    IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'Onaylandi')
+    BEGIN
+        ALTER TABLE Users ADD Onaylandi BIT NOT NULL DEFAULT 0;
+        PRINT 'Onaylandi kolonu eklendi.';
+    END
 END
 GO
 
 -- Örnek veri ekle (Admin ve test kullanıcıları)
 IF NOT EXISTS (SELECT * FROM Users WHERE KullaniciAdi = 'admin')
 BEGIN
-    INSERT INTO Users (AdSoyad, KullaniciAdi, Sifre, Rol)
+    INSERT INTO Users (AdSoyad, KullaniciAdi, Sifre, Rol, Onaylandi)
     VALUES 
-        ('Admin User', 'admin', 'admin123', 0),  -- Rol: 0 = Admin
-        ('Ahmet Yılmaz', 'ahmet', '123456', 1),  -- Rol: 1 = Çalışan
-        ('Ayşe Kaya', 'ayse', '123456', 1),      -- Rol: 1 = Çalışan
-        ('Mehmet Demir', 'mehmet', '123456', 1); -- Rol: 1 = Çalışan
+        ('Admin User', 'admin', 'admin123', 0, 1),  -- Rol: 0 = Admin, Onaylı
+        ('Ahmet Yılmaz', 'ahmet', '123456', 1, 1),  -- Rol: 1 = Çalışan, Onaylı
+        ('Ayşe Kaya', 'ayse', '123456', 1, 1),      -- Rol: 1 = Çalışan, Onaylı
+        ('Mehmet Demir', 'mehmet', '123456', 1, 1); -- Rol: 1 = Çalışan, Onaylı
     
     PRINT 'Örnek kullanıcılar eklendi.';
 END
 ELSE
 BEGIN
     PRINT 'Örnek kullanıcılar zaten mevcut.';
+    
+    -- Mevcut kullanıcıları onayla (eğer Onaylandi kolonu yeni eklendiyse)
+    UPDATE Users SET Onaylandi = 1 WHERE KullaniciAdi IN ('admin', 'ahmet', 'ayse', 'mehmet');
+    PRINT 'Mevcut kullanıcılar onaylandı.';
 END
 GO
 

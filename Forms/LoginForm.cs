@@ -191,6 +191,20 @@ namespace CompanyTaskProjectManagement.Forms
 
                 if (user != null)
                 {
+                    // Onaylanmamış kullanıcı kontrolü
+                    if (!user.Onaylandi)
+                    {
+                        MessageBox.Show("Hesabınız henüz onaylanmamış!\n\n" +
+                                      "Giriş yapabilmek için bir yöneticinin\n" +
+                                      "hesabınızı onaylaması gerekmektedir.\n\n" +
+                                      "Lütfen yöneticinizle iletişime geçiniz.", 
+                                      "Onay Bekleniyor",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        txtSifre.Clear();
+                        txtKullaniciAdi.Focus();
+                        return;
+                    }
+                    
                     // Normal kullanıcı girişinde admin olamaz kontrolü
                     if (user.Rol == UserRole.Admin)
                     {

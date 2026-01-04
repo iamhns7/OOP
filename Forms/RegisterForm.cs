@@ -234,10 +234,19 @@ namespace CompanyTaskProjectManagement.Forms
                     txtSifre.Text,
                     rol
                 );
+                
+                // Yeni kullanıcılar varsayılan olarak onaysız
+                newUser.Onaylandi = false;
 
                 _userService.AddUser(newUser);
 
-                MessageBox.Show("Kayıt başarılı! Şimdi giriş yapabilirsiniz.", "Başarılı",
+                MessageBox.Show("Kayıt başarıyla tamamlandı!\n\n" +
+                               "⚠️ ÖNEMLI:\n" +
+                               "Hesabınız admin onayı bekliyor.\n" +
+                               "Giriş yapabilmek için bir yöneticinin\n" +
+                               "hesabınızı onaylaması gerekmektedir.\n\n" +
+                               "Onay sonrasında e-posta ile bilgilendirileceksiniz.", 
+                               "Kayıt Başarılı - Onay Bekleniyor",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 IsRegistered = true;

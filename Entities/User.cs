@@ -12,6 +12,7 @@ namespace CompanyTaskProjectManagement.Entities
         private string _kullaniciAdi;
         private string _sifre;
         private UserRole _rol;
+        private bool _onaylandi;
 
         // Public property'ler
         public string AdSoyad 
@@ -38,12 +39,19 @@ namespace CompanyTaskProjectManagement.Entities
             set => _rol = value; 
         }
 
+        public bool Onaylandi 
+        { 
+            get => _onaylandi; 
+            set => _onaylandi = value; 
+        }
+
         public User()
         {
             _adSoyad = string.Empty;
             _kullaniciAdi = string.Empty;
             _sifre = string.Empty;
             _rol = UserRole.Calisan;
+            _onaylandi = false; // Yeni kullanıcılar varsayılan olarak onaysız
         }
 
         public User(string adSoyad, string kullaniciAdi, string sifre, UserRole rol) : this()
@@ -52,6 +60,7 @@ namespace CompanyTaskProjectManagement.Entities
             _kullaniciAdi = kullaniciAdi;
             _sifre = sifre;
             _rol = rol;
+            _onaylandi = false; // Yeni kullanıcılar admin onayı bekler
         }
 
         public override string ToString()

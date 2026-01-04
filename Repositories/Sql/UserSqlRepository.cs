@@ -41,7 +41,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = "SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol FROM Users";
+                    string query = "SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol, Onaylandi FROM Users";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -55,7 +55,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                                     AdSoyad = reader.GetString(1),
                                     KullaniciAdi = reader.GetString(2),
                                     Sifre = reader.GetString(3),
-                                    Rol = (UserRole)reader.GetInt32(4)
+                                    Rol = (UserRole)reader.GetInt32(4),
+                                    Onaylandi = reader.GetBoolean(5)
                                 };
                                 
                                 users.Add(user);
@@ -90,7 +91,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                     connection.Open();
                     
                     // Parametreli sorgu (SQL Injection'a karşı güvenli)
-                    string query = "SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol FROM Users WHERE KullaniciAdi = @kullaniciAdi";
+                    string query = "SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol, Onaylandi FROM Users WHERE KullaniciAdi = @kullaniciAdi";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -107,7 +108,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                                     AdSoyad = reader.GetString(1),
                                     KullaniciAdi = reader.GetString(2),
                                     Sifre = reader.GetString(3),
-                                    Rol = (UserRole)reader.GetInt32(4)
+                                    Rol = (UserRole)reader.GetInt32(4),
+                                    Onaylandi = reader.GetBoolean(5)
                                 };
                             }
                         }
@@ -143,8 +145,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                     connection.Open();
                     
                     // Parametreli INSERT sorgusu
-                    string query = @"INSERT INTO Users (AdSoyad, KullaniciAdi, Sifre, Rol) 
-                                    VALUES (@adSoyad, @kullaniciAdi, @sifre, @rol);
+                    string query = @"INSERT INTO Users (AdSoyad, KullaniciAdi, Sifre, Rol, Onaylandi) 
+                                    VALUES (@adSoyad, @kullaniciAdi, @sifre, @rol, @onaylandi);
                                     SELECT CAST(SCOPE_IDENTITY() as int);";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -154,6 +156,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                         command.Parameters.AddWithValue("@kullaniciAdi", entity.KullaniciAdi);
                         command.Parameters.AddWithValue("@sifre", entity.Sifre);
                         command.Parameters.AddWithValue("@rol", (int)entity.Rol);
+                        command.Parameters.AddWithValue("@onaylandi", entity.Onaylandi);
                         
                         // Yeni eklenen kaydın ID'sini al
                         int newId = (int)command.ExecuteScalar();
@@ -184,10 +187,10 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    // Parametreli sorgu
-                    string query = @"SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol 
+                    // Parametreli sorgu - Sadece onaylı kullanıcılar giriş yapabilir
+                    string query = @"SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol, Onaylandi 
                                     FROM Users 
-                                    WHERE KullaniciAdi = @kullaniciAdi AND Sifre = @sifre";
+                                    WHERE KullaniciAdi = @kullaniciAdi AND Sifre = @sifre AND Onaylandi = 1";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -204,7 +207,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                                     AdSoyad = reader.GetString(1),
                                     KullaniciAdi = reader.GetString(2),
                                     Sifre = reader.GetString(3),
-                                    Rol = (UserRole)reader.GetInt32(4)
+                                    Rol = (UserRole)reader.GetInt32(4),
+                                    Onaylandi = reader.GetBoolean(5)
                                 };
                             }
                         }
@@ -236,7 +240,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                 {
                     connection.Open();
                     
-                    string query = "SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol FROM Users WHERE Id = @id";
+                    string query = "SELECT Id, AdSoyad, KullaniciAdi, Sifre, Rol, Onaylandi FROM Users WHERE Id = @id";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -252,7 +256,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                                     AdSoyad = reader.GetString(1),
                                     KullaniciAdi = reader.GetString(2),
                                     Sifre = reader.GetString(3),
-                                    Rol = (UserRole)reader.GetInt32(4)
+                                    Rol = (UserRole)reader.GetInt32(4),
+                                    Onaylandi = reader.GetBoolean(5)
                                 };
                             }
                         }
@@ -284,7 +289,8 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                                     SET AdSoyad = @adSoyad, 
                                         KullaniciAdi = @kullaniciAdi, 
                                         Sifre = @sifre, 
-                                        Rol = @rol 
+                                        Rol = @rol, 
+                                        Onaylandi = @onaylandi 
                                     WHERE Id = @id";
                     
                     using (SqlCommand command = new SqlCommand(query, connection))
@@ -294,6 +300,7 @@ namespace CompanyTaskProjectManagement.Repositories.Sql
                         command.Parameters.AddWithValue("@kullaniciAdi", entity.KullaniciAdi);
                         command.Parameters.AddWithValue("@sifre", entity.Sifre);
                         command.Parameters.AddWithValue("@rol", (int)entity.Rol);
+                        command.Parameters.AddWithValue("@onaylandi", entity.Onaylandi);
                         
                         command.ExecuteNonQuery();
                     }
